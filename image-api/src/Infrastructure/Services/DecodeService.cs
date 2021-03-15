@@ -56,20 +56,16 @@ namespace Infrastructure.Services
         {
             byte mask = (byte)bitPosition;
 
-            foreach (var (point, pixel) in pixelSequence)
+            foreach (var (point, (R, G, B)) in pixelSequence)
             {
                 if (ShouldSkip(point, image)) continue;
 
-                int r = pixel.R;
-                int g = pixel.G;
-                int b = pixel.B;
-
                 if (messageLength-- > 0)
-                    yield return (byte)(r & mask);
+                    yield return (byte)(R & mask);
                 if (messageLength-- > 0)
-                    yield return (byte)(g & mask);
+                    yield return (byte)(G & mask);
                 if (messageLength-- > 0)
-                    yield return (byte)(b & mask);
+                    yield return (byte)(B & mask);
             }
 
             if (messageLength > 0)

@@ -10,9 +10,9 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/Image.Main/bin/Debug/net5.0/Image.Main.dll",
+      "program": "${workspaceFolder}/src/ImageAPI/bin/Debug/net5.0/ImageAPI.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/Image.Main",
+      "cwd": "${workspaceFolder}/src/ImageAPI",
       "stopAtEntry": false,
       // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
       "serverReadyAction": {
