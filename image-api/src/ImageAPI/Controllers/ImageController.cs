@@ -2,6 +2,7 @@
 using Application.Common.Interfaces.Services;
 using Domain.Common;
 using Domain.Contracts.Request;
+using Domain.Contracts.Response;
 using Domain.Enums;
 using Domain.Exeptions;
 using ImageAPI.Extensions;
@@ -15,6 +16,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -43,13 +45,14 @@ namespace ImageAPI.Controllers
         }
 
         [HttpPost(ApiRoutes.ImageRoutes.EncodeFile)]
-        public async Task<IActionResult> EncodeFile(IFormFile file, [FromForm] EncodeRequest request)
+        public async Task<IActionResult> EncodeFile([FromForm] EncodeRequest request, IFormFile file)
         {
-            using var stream = new MemoryStream();
+            using var imageStream = new MemoryStream();
 
-            await file.CopyToAsync(stream);
+            await file.CopyToAsync(imageStream);
+            var image = new Bitmap(imageStream);
 
-            return Ok("");
+            return EncodeRequest(request, image);
         }
 
         [HttpPost(ApiRoutes.ImageRoutes.EncodeRandom)]
@@ -59,22 +62,7 @@ namespace ImageAPI.Controllers
 
             var image = new Bitmap(imageStream);
 
-            image.Save("C:\\Users\\jens\\original.png", ImageFormat.Png);
-
-            try
-            {
-                EncodeMessage(request, image);
-            }
-            catch (MessageToLongExpection e)
-            {
-                return BadRequest(new { Error = e.Message });
-            }
-
-            using var resultStream = new MemoryStream();
-
-            image.Save(resultStream, ImageFormat.Png);
-
-            return File(resultStream.ToArray(), "image/png");
+            return EncodeRequest(request, image);
         }
 
         [HttpPost(ApiRoutes.ImageRoutes.Decode)]
@@ -95,12 +83,39 @@ namespace ImageAPI.Controllers
             {
                 string message = DecodeMessage(image);
 
-                return Ok(new { Message = message });
+                return Ok(new DecodeResponse
+                {
+                    Message = message
+                });
             }
             catch (CryptographicException e)
             {
-                return BadRequest(new { Error = e.Message });
+                return BadRequest(new ErrorResponse
+                {
+                    ErrorMessages = new[] { e.Message }
+                });
             }
+        }
+
+        private IActionResult EncodeRequest(EncodeRequest request, Bitmap image)
+        {
+            try
+            {
+                EncodeMessage(request, image);
+            }
+            catch (MessageToLongExpection e)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    ErrorMessages = new[] { e.Message }
+                });
+            }
+
+            using var resultStream = new MemoryStream();
+
+            image.Save(resultStream, ImageFormat.Png);
+
+            return File(resultStream.ToArray(), "image/png");
         }
 
         private void EncodeMessage(EncodeRequest request, Bitmap image)
