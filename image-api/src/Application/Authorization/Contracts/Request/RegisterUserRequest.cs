@@ -4,10 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain
+namespace Application.Authorization
 {
-    public class JwtSettings
-    {
-        public string Secret { get; set; }
-    }
+    public record RegisterUserRequest(string Username, string Password);
 }

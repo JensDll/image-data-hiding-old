@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Contracts.Request
+namespace Domain.Entities
 {
-    public record RegisterUserRequest(string Username, string Password);
+    public record Pixel(int R, int G, int B);
 }

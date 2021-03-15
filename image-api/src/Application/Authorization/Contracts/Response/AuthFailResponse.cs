@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Contracts.Response
+namespace Application.Authorization
 {
-    public class AuthSuccessResponse
+    public class AuthFailResponse
     {
-        public string Token { get; set; }        
+        public IEnumerable<string> ErrorMessages { get; set; }
     }
 }

@@ -1,12 +1,11 @@
-﻿using Domain.Entity;
-using Domain.Contracts.Request;
+﻿using Domain.Contracts.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Services
+namespace Application.Authorization
 {
     public interface IAccountService
     {

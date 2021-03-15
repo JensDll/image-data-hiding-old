@@ -1,19 +1,17 @@
-﻿using Application.Repositories;
-using Domain;
-using Infrastructure.Repositories;
+﻿using Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Application.Services;
 using Infrastructure.Services;
+using Infrastructure.Identity;
+using System.Data;
+using System.Data.SqlClient;
+using Application.Common.Interfaces;
+using Application.Authorization;
+using Application.Common.Interfaces.Services;
 
 namespace Infrastructure
 {
@@ -21,12 +19,19 @@ namespace Infrastructure
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            // Identity
+            services.AddIdentityCore<ApplicationUser>().AddDefaultTokenProviders();
+            services.AddTransient<IUserStore<ApplicationUser>, CustomUserStore>();
+
             // Services
             services.AddScoped<IAccountService, AccountService>();
-            services.AddSingleton<IImageService, ImageService>();
+            services.AddSingleton<IEnumerableService, EnumerableService>();
+            services.AddSingleton<IEncodeService, EncodeService>();
+            services.AddSingleton<IDecodeService, DecodeService>();
 
             // Data Access
             services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddTransient<IDbConnection>(_ => new SqlConnection(configuration.GetConnectionString("IMAGE_DB")));
 
             // Authorization
             var jwtSettings = new JwtSettings();

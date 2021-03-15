@@ -1,6 +1,10 @@
-﻿using Application.Services;
-using Domain;
+﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces.Services;
+using Domain.Common;
 using Domain.Contracts.Request;
+using Domain.Enums;
+using Domain.Exeptions;
+using ImageAPI.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -13,6 +17,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,32 +27,50 @@ namespace ImageAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ImageController : ControllerBase
     {
-        private readonly HttpClient _client;
-        private readonly IDataProtectionProvider _provider;
-        private readonly IImageService _imageService;
+        private HttpClient HttpClient { get; }
+        private IDataProtectionProvider Provider { get; }
+        private IEncodeService EncodeService { get; }
+        private IDecodeService DecodeService { get; }
 
-        public ImageController(IDataProtectionProvider provider, IImageService imageService)
+        public ImageController(IDataProtectionProvider provider,
+            IEncodeService encodeService,
+            IDecodeService decodeService)
         {
-            _client = new HttpClient();
-            _provider = provider;
-            _imageService = imageService;
+            HttpClient = new HttpClient();
+            Provider = provider;
+            EncodeService = encodeService;
+            DecodeService = decodeService;
         }
 
-        [HttpPost(ApiRoutes.ImageRoutes.Encode)]
-        public async Task<IActionResult> Encode(EncodeRequest request)
+        [HttpPost(ApiRoutes.ImageRoutes.EncodeFile)]
+        public async Task<IActionResult> EncodeFile(IFormFile file, [FromForm] EncodeRequest request)
         {
-            var imagestream = await _client.GetStreamAsync("https://picsum.photos/300/400");
+            using var stream = new MemoryStream();
 
-            var (userId, message) = request;
-            var protector = _provider.CreateProtector(GetType().ToString(), userId.ToString());
+            await file.CopyToAsync(stream);
 
-            var protectedData = protector.Protect(Encoding.UTF8.GetBytes(message));
+            return Ok("");
+        }
 
-            var image = new Bitmap(imagestream);
+        [HttpPost(ApiRoutes.ImageRoutes.EncodeRandom)]
+        public async Task<IActionResult> EncodeRandom([FromBody] EncodeRequest request)
+        {
+            using var imageStream = await HttpClient.GetStreamAsync("https://picsum.photos/1000");
 
-            _imageService.WriteMessage(image, protectedData);
+            var image = new Bitmap(imageStream);
 
-            var resultStream = new MemoryStream();
+            image.Save("C:\\Users\\jens\\original.png", ImageFormat.Png);
+
+            try
+            {
+                EncodeMessage(request, image);
+            }
+            catch (MessageToLongExpection e)
+            {
+                return BadRequest(new { Error = e.Message });
+            }
+
+            using var resultStream = new MemoryStream();
 
             image.Save(resultStream, ImageFormat.Png);
 
@@ -62,28 +85,39 @@ namespace ImageAPI.Controllers
                 return BadRequest("Error");
             }
 
-            var stream = new MemoryStream();
+            using var imageStream = new MemoryStream();
 
-            await file.CopyToAsync(stream);
+            await file.CopyToAsync(imageStream);
 
-            var image = new Bitmap(stream);
+            var image = new Bitmap(imageStream);
 
-            _imageService.ReadMessage(image);
-
-            var protector = _provider.CreateProtector(GetType().ToString(), HttpContext.GetUserId().ToString());
-
-            return Ok(new
+            try
             {
-                Message = "Test"
-            });
+                string message = DecodeMessage(image);
+
+                return Ok(new { Message = message });
+            }
+            catch (CryptographicException e)
+            {
+                return BadRequest(new { Error = e.Message });
+            }
         }
 
-        [HttpGet(ApiRoutes.ImageRoutes.Test)]
-        public IActionResult Test(string s)
+        private void EncodeMessage(EncodeRequest request, Bitmap image)
         {
-            int id = HttpContext.GetUserId();
+            var protector = Provider.CreateProtector(GetType().FullName, request.Username);
+            var protectedMessage = protector.Protect(Encoding.UTF8.GetBytes(request.Message));
 
-            return Ok(id);
+            EncodeService.EnocodeMessage(image, protectedMessage);
+        }
+
+        private string DecodeMessage(Bitmap image)
+        {
+            var protector = Provider.CreateProtector(GetType().FullName, HttpContext.GetUsername());
+            var protectedMessage = DecodeService.DecodeMessage(image);
+            var message = protector.Unprotect(protectedMessage);
+
+            return Encoding.UTF8.GetString(message);
         }
     }
 }

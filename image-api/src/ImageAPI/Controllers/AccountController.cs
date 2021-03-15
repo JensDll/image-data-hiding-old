@@ -1,11 +1,5 @@
-﻿using Application.Services;
-using Domain;
-using Domain.Contracts.Request;
-using Domain.Contracts.Response;
+﻿using Application.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ImageAPI.Controllers
@@ -20,7 +14,7 @@ namespace ImageAPI.Controllers
         }
 
         [HttpPost(IdentityRoutes.AccountRoutes.Register)]
-        public async Task<IActionResult> Register(RegisterUserRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
         {
             var authResult = await _accountService.RegisterAsync(request);
 
@@ -39,7 +33,7 @@ namespace ImageAPI.Controllers
         }
 
         [HttpPost(IdentityRoutes.AccountRoutes.Login)]
-        public async Task<IActionResult> Login(LoginUserRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {
             var authResult = await _accountService.LoginAsync(request);
 

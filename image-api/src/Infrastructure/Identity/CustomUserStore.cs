@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Application.Authorization;
+using Application.Common.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Identity;
-using Application.Repositories;
 
 namespace Infrastructure.Identity
 {

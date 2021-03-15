@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Models
+namespace Application.Common.Models
 {
-    public class DatabaseUser
+    public class DbUserPassword
     {
         public int Id { get; set; }
 

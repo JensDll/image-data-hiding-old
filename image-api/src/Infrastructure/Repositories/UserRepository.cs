@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Dapper;
 using System.Data;
 using System.Text.Json;
-using Application.Repositories;
-using Domain.Models;
-using Application.Identity;
+using Application.Common.Interfaces;
+using Application.Common.Models;
+using Application.Authorization;
 
 namespace Infrastructure.Repositories
 {
@@ -30,7 +30,7 @@ namespace Infrastructure.Repositories
                 return null;
             }
 
-            var user = JsonSerializer.Deserialize<DatabaseUser>(string.Join("", result));
+            var user = JsonSerializer.Deserialize<DbUserPassword>(string.Join("", result));
 
             return new ApplicationUser
             {
@@ -49,7 +49,7 @@ namespace Infrastructure.Repositories
                 return null;
             }
 
-            var user = JsonSerializer.Deserialize<DatabaseUser>(string.Join("", result));
+            var user = JsonSerializer.Deserialize<DbUserPassword>(string.Join("", result));
 
             return new ApplicationUser
             {

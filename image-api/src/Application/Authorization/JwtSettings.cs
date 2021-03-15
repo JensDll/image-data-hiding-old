@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Common.Base
+namespace Application.Authorization
 {
-    public abstract class ErrorMessageBase
+    public class JwtSettings
     {
-        public IEnumerable<string> ErrorMessages { get; set; }
+        public string Secret { get; set; }
     }
 }
