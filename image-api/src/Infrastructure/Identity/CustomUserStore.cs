@@ -1,5 +1,6 @@
 ﻿using Application.Authorization;
 using Application.Common.Interfaces;
+using Application.Common.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading;
@@ -9,18 +10,18 @@ namespace Infrastructure.Identity
 {
     public class CustomUserStore : IUserStore<ApplicationUser>, IUserPasswordStore<ApplicationUser>
     {
-        private readonly IUserRepository _userRepository;
+        private IIdentityRepository UserRepository { get; }
 
-        public CustomUserStore(IUserRepository userRepository)
+        public CustomUserStore(IIdentityRepository userRepository)
         {
-            _userRepository = userRepository;
+            UserRepository = userRepository;
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            int id = await _userRepository.CreateAsync(user.UserName, user.PasswordHash);
+            int id = await UserRepository.CreateAsync(user.UserName, user.PasswordHash);
 
             if (id > 0)
             {
@@ -47,7 +48,7 @@ namespace Infrastructure.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await _userRepository.GetByNameAsync(normalizedUserName);
+            return await UserRepository.GetByNameAsync(normalizedUserName);
         }
 
         public Task<string> GetNormalizedUserNameAsync(ApplicationUser user, CancellationToken cancellationToken)

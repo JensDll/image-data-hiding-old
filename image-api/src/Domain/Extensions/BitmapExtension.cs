@@ -1,5 +1,4 @@
-﻿using Domain.Common;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Domain.Enums;
 using System;
 using System.Collections;

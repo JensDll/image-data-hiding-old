@@ -6,17 +6,19 @@ namespace ImageAPI.Controllers
 {
     public class AccountController : ControllerBase
     {
-        private readonly IAccountService _accountService;
+        public IAccountService AccountService { get; }
 
         public AccountController(IAccountService accountService)
         {
-            _accountService = accountService;
+            AccountService = accountService;
         }
 
         [HttpPost(IdentityRoutes.AccountRoutes.Register)]
+        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
+        [ProducesResponseType(typeof(AuthFailResponse), 400)]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
         {
-            var authResult = await _accountService.RegisterAsync(request);
+            var authResult = await AccountService.RegisterAsync(request);
 
             if (!authResult.Success)
             {
@@ -33,9 +35,11 @@ namespace ImageAPI.Controllers
         }
 
         [HttpPost(IdentityRoutes.AccountRoutes.Login)]
+        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
+        [ProducesResponseType(typeof(AuthFailResponse), 400)]
         public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {
-            var authResult = await _accountService.LoginAsync(request);
+            var authResult = await AccountService.LoginAsync(request);
 
             if (!authResult.Success)
             {

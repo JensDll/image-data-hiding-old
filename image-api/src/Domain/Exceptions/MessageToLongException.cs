@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Exeptions
+namespace Domain.Exceptions
 {
-    public class MessageToLongExpection : Exception
+    public class MessageToLongException : Exception
     {
-        public MessageToLongExpection() : base("Message is too long.")
+        public MessageToLongException() : base("Message is too long.")
         {
 
         }

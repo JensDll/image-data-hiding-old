@@ -49,32 +49,43 @@ namespace Infrastructure.Services
             return result;
         }
 
-        private IEnumerable<byte> DecodeMessageImpl(Bitmap image,
+        private static IEnumerable<byte> DecodeMessageImpl(Bitmap image,
             IEnumerable<(Point, Pixel)> pixelSequence,
             BitPosition bitPosition,
             int messageLength)
         {
+            var pixelEnumerator = pixelSequence.GetEnumerator();
+
             byte mask = (byte)bitPosition;
+            int shiftRight = 0;
 
-            foreach (var (point, (R, G, B)) in pixelSequence)
+            while (messageLength > 0)
             {
-                if (ShouldSkip(point, image)) continue;
+                if (pixelEnumerator.MoveNext())
+                {
+                    var (point, (R, G, B)) = pixelEnumerator.Current;
 
-                if (messageLength-- > 0)
-                    yield return (byte)(R & mask);
-                if (messageLength-- > 0)
-                    yield return (byte)(G & mask);
-                if (messageLength-- > 0)
-                    yield return (byte)(B & mask);
+                    if (ShouldSkip(point, image)) continue;
+
+                    if (messageLength-- > 0)
+                        yield return (byte)((R & mask) >> shiftRight);
+                    if (messageLength-- > 0)
+                        yield return (byte)((G & mask) >> shiftRight);
+                    if (messageLength-- > 0)
+                        yield return (byte)((B & mask) >> shiftRight);
+                }
+                else
+                {
+                    pixelEnumerator = pixelSequence.GetEnumerator();
+                    mask <<= 1;
+                    shiftRight++;
+                }
             }
 
-            if (messageLength > 0)
-            {
-                DecodeMessageImpl(image, pixelSequence, (BitPosition)((int)bitPosition << 1), messageLength);
-            }
+            pixelEnumerator.Dispose();
         }
 
-        private int DecodeMessageLength(Bitmap image)
+        private static int DecodeMessageLength(Bitmap image)
         {
             var (r1, g1, b1) = image.GetPixelValue(0, 0);
             var (r2, g2, b2) = image.GetPixelValue(image.Width - 1, image.Height - 1);

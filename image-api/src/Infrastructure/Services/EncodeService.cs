@@ -1,7 +1,7 @@
 ﻿using Application.Common.Interfaces.Services;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Exeptions;
+using Domain.Exceptions;
 using Domain.Extensions;
 using System;
 using System.Collections.Generic;
@@ -28,13 +28,13 @@ namespace Infrastructure.Services
             var pixelSequence = enumerableService.EvenDistribution(image);
             var bitSequence = enumerableService.Bitwise(message).GetEnumerator();
 
-            EncodeMessageImpl(image, pixelSequence, bitSequence, BitPosition.One);
+            EncodeMessageImpl(image, pixelSequence, bitSequence);
         }
 
         private static void EncodeMessageImpl(Bitmap image,
             IEnumerable<(Point, Pixel)> pixelSequence,
             IEnumerator<byte> bitSequence,
-            BitPosition bitPosition,
+            BitPosition bitPosition = BitPosition.One,
             int shift = 0)
         {
             byte mask = (byte)~bitPosition;
@@ -79,7 +79,7 @@ namespace Infrastructure.Services
 
             if (bitPosition == BitPosition.Eighth)
             {
-                throw new MessageToLongExpection();
+                throw new MessageToLongException();
             }
 
             EncodeMessageImpl(image, pixelSequence, bitSequence, (BitPosition)((int)bitPosition << 1), shift + 1);

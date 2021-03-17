@@ -26,6 +26,14 @@ namespace ImageAPI
 
             services.AddControllers();
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("http://localhost:3000", "http://localhost:3000/main").AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+                });
+            });
+
             services.AddSwagger();
         }
 
@@ -46,6 +54,8 @@ namespace ImageAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 

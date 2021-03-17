@@ -20,7 +20,7 @@ namespace ImageAPI.Extensions
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "To authenticate with a valid token, type `Bearer <token>` in the text input below.",
-                    Name = "Authorization",
+                    Name = "authorization",
                     In = ParameterLocation.Header
                 });
 

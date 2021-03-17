@@ -1,10 +1,8 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common;
 using Application.Common.Interfaces.Services;
-using Domain.Common;
 using Domain.Contracts.Request;
 using Domain.Contracts.Response;
-using Domain.Enums;
-using Domain.Exeptions;
+using Domain.Exceptions;
 using ImageAPI.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,8 +14,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -66,6 +62,8 @@ namespace ImageAPI.Controllers
         }
 
         [HttpPost(ApiRoutes.ImageRoutes.Decode)]
+        [ProducesResponseType(typeof(DecodeResponse), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 400)]
         public async Task<IActionResult> Decode(IFormFile file)
         {
             if (file == null)
@@ -103,7 +101,7 @@ namespace ImageAPI.Controllers
             {
                 EncodeMessage(request, image);
             }
-            catch (MessageToLongExpection e)
+            catch (MessageToLongException e)
             {
                 return BadRequest(new ErrorResponse
                 {

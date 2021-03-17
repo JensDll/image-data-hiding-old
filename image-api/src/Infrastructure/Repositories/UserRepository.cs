@@ -1,72 +1,43 @@
-﻿using System;
+﻿using Application.Common.Interfaces.Repositories;
+using Application.Common.Models;
+using Dapper;
+using Domain.Contracts.Request;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Dapper;
-using System.Data;
 using System.Text.Json;
-using Application.Common.Interfaces;
-using Application.Common.Models;
-using Application.Authorization;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : RepositoryBase, IUserRepository
     {
-        private readonly IDbConnection _connection;
+        public UserRepository(IDbConnection connection) : base(connection)
+        { }
 
-        public UserRepository(IDbConnection connection)
+        public async Task<(IEnumerable<DbUser> Users, int Total)> GetAllAsync(PaginationRequest request)
         {
-            _connection = connection;
-        }
+            (int skip, int take) = GetSkipTake(request);
 
-        public async Task<ApplicationUser> GetByIdAsync(int id)
-        {
-            var result = await _connection.QueryAsync<string>("spUsers_GetById", param: new { id }, commandType: CommandType.StoredProcedure);
+            var parameter = new DynamicParameters();
+            parameter.Add("skip", skip);
+            parameter.Add("take", take);
+            parameter.Add("total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await Connection.QueryAsync<string>("spUsers_GetAll", param: parameter, commandType: CommandType.StoredProcedure);
+
+            int total = parameter.Get<int>("total");
 
             if (!result.Any())
             {
-                return null;
+                return (Enumerable.Empty<DbUser>(), total);
             }
 
-            var user = JsonSerializer.Deserialize<DbUserPassword>(string.Join("", result));
+            var users = JsonSerializer.Deserialize<IEnumerable<DbUser>>(string.Join("", result));
 
-            return new ApplicationUser
-            {
-                Id = user.Id,
-                UserName = user.Username,
-                PasswordHash = user.PasswordHash
-            };
-        }
-
-        public async Task<ApplicationUser> GetByNameAsync(string username)
-        {
-            var result = await _connection.QueryAsync<string>("spUsers_GetByName", param: new { username }, commandType: CommandType.StoredProcedure);
-
-            if (!result.Any())
-            {
-                return null;
-            }
-
-            var user = JsonSerializer.Deserialize<DbUserPassword>(string.Join("", result));
-
-            return new ApplicationUser
-            {
-                Id = user.Id,
-                UserName = user.Username,
-                PasswordHash = user.PasswordHash
-            };
-        }
-
-        public async Task<int> CreateAsync(string username, string password)
-        {
-            return await _connection.QuerySingleAsync<int>("spUsers_Insert", param: new { username, password }, commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task<int> DeleteAsync(int id)
-        {
-            return await _connection.ExecuteAsync("spUser_Delete", param: new { id }, commandType: CommandType.StoredProcedure);
+            return (users, total);
         }
     }
 }

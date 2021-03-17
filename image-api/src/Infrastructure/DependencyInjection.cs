@@ -9,9 +9,9 @@ using Infrastructure.Services;
 using Infrastructure.Identity;
 using System.Data;
 using System.Data.SqlClient;
-using Application.Common.Interfaces;
 using Application.Authorization;
 using Application.Common.Interfaces.Services;
+using Application.Common.Interfaces.Repositories;
 
 namespace Infrastructure
 {
@@ -30,6 +30,7 @@ namespace Infrastructure
             services.AddSingleton<IDecodeService, DecodeService>();
 
             // Data Access
+            services.AddSingleton<IIdentityRepository, IdentityRepository>();
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddTransient<IDbConnection>(_ => new SqlConnection(configuration.GetConnectionString("IMAGE_DB")));
 

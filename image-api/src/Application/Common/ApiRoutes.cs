@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Common
+namespace Application.Common
 {
     public static class ApiRoutes
     {
@@ -17,6 +17,11 @@ namespace Domain.Common
             public const string EncodeFile = Base + "/image/encode/file";
 
             public const string Decode = Base + "/image/decode";
+        }
+
+        public static class UserRoutes
+        {
+            public const string GetAll = Base + "/user";
         }
     }
 }

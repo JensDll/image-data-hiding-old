@@ -12,6 +12,6 @@ namespace Application.Common.Interfaces.Services
     {
         IEnumerable<byte> Bitwise(byte[] bytes);
 
-        IEnumerable<(Point, Pixel)> EvenDistribution(Bitmap image);
+        IEnumerable<(Point Point, Pixel Pixel)> EvenDistribution(Bitmap image);
     }
 }

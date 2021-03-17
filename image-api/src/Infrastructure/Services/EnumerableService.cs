@@ -1,5 +1,4 @@
 ﻿using Application.Common.Interfaces.Services;
-using Domain.Common.DataStructures;
 using Domain.Entities;
 using Domain.Extensions;
 using System;
@@ -12,38 +11,36 @@ namespace Infrastructure.Services
     {
         public IEnumerable<byte> Bitwise(byte[] bytes)
         {
+            var masks = new byte[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
             foreach (byte b in bytes)
             {
-                yield return (byte)((b & 128) >> 7);
-                yield return (byte)((b & 64) >> 6);
-                yield return (byte)((b & 32) >> 5);
-                yield return (byte)((b & 16) >> 4);
-                yield return (byte)((b & 8) >> 3);
-                yield return (byte)((b & 4) >> 2);
-                yield return (byte)((b & 2) >> 1);
-                yield return (byte)(b & 1);
+                for (int i = 7; i >= 0; i--)
+                {
+                    yield return (byte)((b & masks[i]) >> i);
+                }
             }
         }
 
-        public IEnumerable<(Point, Pixel)> EvenDistribution(Bitmap image)
+        public IEnumerable<(Point Point, Pixel Pixel)> EvenDistribution(Bitmap image)
         {
-            Heap<Range> maxHeap = new((r1, r2) => r2.GetLength() - r1.GetLength());
-
+            Queue<RangeRecord> queue = new();
             int end = (image.Width * image.Height) - 1;
-            maxHeap.Add(0..end);
+            queue.Enqueue(new RangeRecord(0, end));
 
-            while (maxHeap.Count > 0)
+            while (queue.Count > 0)
             {
-                Range range = maxHeap.RemoveTop();
+                RangeRecord range = queue.Dequeue();
 
-                if (range.TryBisect(out (Range Left, Range Right) ranges))
+                if (range.TryBisect(out var ranges))
                 {
-                    maxHeap.Add(ranges.Left).Add(ranges.Right);
+                    queue.Enqueue(ranges.Left);
+                    queue.Enqueue(ranges.Right);
                 }
                 else
                 {
-                    int y = Math.DivRem(range.Start.Value, image.Width, out int x);
-                    Point point = new (x, y);
+                    int y = Math.DivRem(range.Start, image.Width, out int x);
+                    Point point = new(x, y);
                     Pixel pixel = image.GetPixelValue(x, y);
 
                     yield return (point, pixel);

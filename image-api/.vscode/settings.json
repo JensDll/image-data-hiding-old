@@ -3,6 +3,5 @@
   "editor.formatOnType": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": true
-  },
-  "editor.tabSize": 2
+  }
 }
