@@ -41,8 +41,6 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  max-width: 700px;
 }
 
 .steps {
@@ -59,7 +57,7 @@ export default defineComponent({
     @apply flex flex-col cursor-pointer;
 
     & .circle {
-      @apply mt-2 border-4 border-blue-500 bg-white rounded-full transition-transform duration-100 z-10 self-center;
+      @apply mt-2 border-4 border-indigo-500 bg-white rounded-full transition-transform duration-100 z-10 self-center;
 
       width: var(--diameter);
       height: var(--diameter);
@@ -72,10 +70,10 @@ export default defineComponent({
     }
 
     &.active {
-      @apply font-semibold text-blue-600;
+      @apply font-medium text-indigo-600;
 
       & .circle {
-        background-color: theme('colors.blue.50');
+        background-color: theme('colors.indigo.50');
         transform: scale(1.2);
       }
     }
@@ -84,7 +82,7 @@ export default defineComponent({
   & .line {
     --height: 4px;
 
-    background-color: theme('colors.blue.500');
+    background-color: theme('colors.indigo.500');
     height: var(--height);
     position: absolute;
     left: 20px;
