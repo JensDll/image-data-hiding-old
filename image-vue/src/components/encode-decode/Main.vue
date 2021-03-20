@@ -46,7 +46,7 @@ export default defineComponent({
 .steps {
   position: relative;
   width: 250px;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   display: grid;
   justify-content: space-between;
   grid-auto-flow: column;

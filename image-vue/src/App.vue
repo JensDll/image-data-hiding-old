@@ -50,12 +50,12 @@ import MainPage from './views/MainPage.vue';
   }
 
   .btn-default {
-    @apply bg-amber-50 text-amber-700;
-    @apply hover:bg-amber-100;
+    @apply bg-indigo-50 text-indigo-600;
+    @apply hover:bg-indigo-100;
   }
 
   .btn-default:focus {
-    @apply ring-2 ring-amber-700;
+    @apply ring-2 ring-indigo-600;
   }
 }
 </style>

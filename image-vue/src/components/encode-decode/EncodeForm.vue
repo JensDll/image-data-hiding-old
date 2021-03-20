@@ -12,9 +12,9 @@
           }"
         >
           <option
-            class="block p-4 bg-white"
-            v-for="user in pagedResponse.data"
+            v-for="user in fetchingUsers ? [] : pagedResponse?.data"
             :key="user.id"
+            class="block p-4 bg-white"
             :value="user.username"
           >
             {{ user.username }}
@@ -49,15 +49,19 @@
     <label>
       <div class="font-semibold mb-3">Message</div>
       <textarea
+        v-model="form.message.$value"
         spellcheck="false"
         class="w-full p-4 border border-emerald-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-        v-model="form.message.$value"
       />
     </label>
-    <FileUpload @upload="file = $event" />
+    <FileUpload @upload="file = $event">
+      <p class="text-sm text-gray-500">
+        Leave this empty and receive a random image
+      </p>
+    </FileUpload>
     <BaseButton
-      class="px-6 py-3 btn-primary relative"
-      type="primary"
+      class="px-6 py-3 btn-primary mt-4"
+      html-type="submit"
       :disabled="encoding"
     >
       Encode
@@ -68,18 +72,21 @@
 <script lang="ts">
 import { computed, ref, defineComponent } from 'vue';
 import { Field, useValidation } from 'vue3-form-validation';
-import { encodeService } from '../../services/encodeService';
-import { userService } from '../../services/userService';
-import FileUpload from './FileUpload.vue';
 import { useDownload } from '../../composition';
+import { PagedResponse } from '../../services/common';
+import { apiClient, authClient } from '../../services/apiClient';
 
 type FormData = {
   username: Field<string>;
   message: Field<string>;
 };
 
+type User = {
+  id: number;
+  username: string;
+};
+
 export default defineComponent({
-  components: { FileUpload },
   setup() {
     const { form, validateFields } = useValidation<FormData>({
       username: {
@@ -91,21 +98,28 @@ export default defineComponent({
       }
     });
 
-    const { pagedResponse } = userService.useGetAll(1, 10);
+    const { data: pagedResponse, loading: fetchingUsers } = apiClient
+      .useFetch<PagedResponse<User>>({ immediat: true })
+      .execute('/api/user?pageNumber=1&pageSize=200')
+      .get()
+      .json();
+
     const {
-      encodeWithFile,
-      loading: encodeLoadingFile
-    } = encodeService.useWithFile();
+      loading: loadingRandom,
+      execute: encodeRandom
+    } = authClient.useFetch<Blob>();
+
     const {
-      encodeWithRandom,
-      loading: encodeLoadingRandom
-    } = encodeService.useWithRandom();
+      loading: loadingWithFile,
+      execute: encodeWithFile
+    } = authClient.useFetch<Blob>();
 
     const file = ref<File>();
 
     const handleSubmit = async () => {
       try {
         const { username, message } = await validateFields();
+
         const formData = new FormData();
 
         if (file.value) {
@@ -114,13 +128,20 @@ export default defineComponent({
           formData.append('message', message);
         }
 
-        const link = await (file.value
-          ? encodeWithFile(formData)
-          : encodeWithRandom({ username, message }));
+        const promise = file.value
+          ? encodeWithFile('/api/image/encode/file', {}).post(formData).blob()
+              .promise
+          : encodeRandom('/api/image/encode/random')
+              .post(JSON.stringify({ username, message }))
+              .blob().promise;
 
-        useDownload(link, 'secret.png');
-      } catch {
-        //
+        const { isValid, data: image } = await promise;
+
+        if (isValid.value && image.value) {
+          useDownload().saveImage(image.value, 'secret.png');
+        }
+      } catch (e) {
+        console.log(e);
       }
     };
 
@@ -128,9 +149,8 @@ export default defineComponent({
       file,
       form,
       pagedResponse,
-      encoding: computed(
-        () => encodeLoadingFile.value || encodeLoadingRandom.value
-      ),
+      fetchingUsers,
+      encoding: computed(() => loadingWithFile.value || loadingRandom.value),
       handleSubmit
     };
   }
