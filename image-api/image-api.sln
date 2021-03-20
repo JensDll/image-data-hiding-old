@@ -15,11 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0F7592BD-9CB0-4DDA-8AAE-514AFD11F25C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.UnitTests", "Application.UnitTests\Application.UnitTests.csproj", "{3B6BD6B8-2555-4CB5-89E1-03FC06E77E65}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.UnitTests", "tests\Application.UnitTests\Application.UnitTests.csproj", "{3B6BD6B8-2555-4CB5-89E1-03FC06E77E65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.UnitTests", "Domain.UnitTests\Domain.UnitTests.csproj", "{9EAAAE7A-A26F-49E3-8FAC-D0CD5B9F516E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.UnitTests", "tests\Domain.UnitTests\Domain.UnitTests.csproj", "{9EAAAE7A-A26F-49E3-8FAC-D0CD5B9F516E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.IntegrationTest", "Application.IntegrationTest\Application.IntegrationTest.csproj", "{C0A9E70F-CF04-4361-A97D-634F42433CD6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.IntegrationTest", "tests\Application.IntegrationTest\Application.IntegrationTest.csproj", "{C0A9E70F-CF04-4361-A97D-634F42433CD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
