@@ -9,7 +9,8 @@ BEGIN
 
   SELECT *
   FROM dbo.Users
-  WHERE Id = @id;
+  WHERE Id = @id
+  FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
 
 END
 GO
