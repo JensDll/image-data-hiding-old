@@ -15,6 +15,12 @@ namespace Application.Authorization
             public const string Register = Base + "/account/register";
 
             public const string Login = Base + "/account/login";
+
+            public const string Logout = Base + "/account/logout";
+
+            public const string Refresh = Base + "/account/refresh";
+
+            public const string Delete = Base + "/account/delete";
         }
     }
 }

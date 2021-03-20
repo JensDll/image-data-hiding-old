@@ -9,9 +9,11 @@ using Infrastructure.Services;
 using Infrastructure.Identity;
 using System.Data;
 using System.Data.SqlClient;
-using Application.Authorization;
-using Application.Common.Interfaces.Services;
-using Application.Common.Interfaces.Repositories;
+using Application.Authorization.Interfaces;
+using Application.Authorization.Domain;
+using Application.Common.Interfaces;
+using System.Security.Cryptography;
+using System;
 
 namespace Infrastructure
 {
@@ -31,14 +33,33 @@ namespace Infrastructure
 
             // Data Access
             services.AddSingleton<IIdentityRepository, IdentityRepository>();
+            services.AddSingleton<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddTransient<IDbConnection>(_ => new SqlConnection(configuration.GetConnectionString("IMAGE_DB")));
 
             // Authorization
-            var jwtSettings = new JwtSettings();
-            configuration.Bind(nameof(jwtSettings), jwtSettings);
+            var csrng = new RNGCryptoServiceProvider();
+            var secret = new byte[32];
+            csrng.GetBytes(secret);
+
+            var jwtSettings = new JwtSettings
+            {
+                Secret = Encoding.ASCII.GetString(secret)
+            };
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireExpirationTime = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
 
             services.AddSingleton(jwtSettings);
+            services.AddSingleton(tokenValidationParameters);
 
             services.AddAuthentication(options =>
             {
@@ -49,15 +70,7 @@ namespace Infrastructure
             .AddJwtBearer(options =>
             {
                 options.SaveToken = true;
-                options.TokenValidationParameters = new()
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    RequireExpirationTime = false,
-                    ValidateLifetime = true
-                };
+                options.TokenValidationParameters = tokenValidationParameters;
             });
         }
     }

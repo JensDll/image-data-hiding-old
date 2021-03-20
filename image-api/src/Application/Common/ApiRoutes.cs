@@ -22,6 +22,8 @@ namespace Application.Common
         public static class UserRoutes
         {
             public const string GetAll = Base + "/user";
+
+            public const string IsUserNameTake = Base + "/user/{username}/taken";
         }
     }
 }

@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Application.Authorization.Contracts.Request
 {
-    public record LoginUserRequest(string Username, string Password);
+    public record RefreshTokenRequest(string Token, string RefreshToken);
 }

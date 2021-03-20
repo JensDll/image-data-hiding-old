@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Authorization
+namespace Domain.Contracts.Response
 {
-    public class JwtSettings
+    public class Envelop<T>
     {
-        public string Secret { get; set; }
+        public T Data { get; set; }
     }
 }

@@ -33,7 +33,8 @@ namespace ImageAPI.Extensions
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            var authorizeAttributes = context.MethodInfo.DeclaringType.GetCustomAttributes(true)
+            var authorizeAttributes = context.MethodInfo.GetCustomAttributes(true)
+                .Concat(context.MethodInfo.DeclaringType.GetCustomAttributes(true))
                 .OfType<AuthorizeAttribute>();
 
             if (authorizeAttributes.Any())

@@ -1,5 +1,5 @@
 ﻿using Application.Common;
-using Application.Common.Interfaces.Services;
+using Application.Common.Interfaces;
 using Domain.Contracts.Request;
 using Domain.Contracts.Response;
 using Domain.Exceptions;

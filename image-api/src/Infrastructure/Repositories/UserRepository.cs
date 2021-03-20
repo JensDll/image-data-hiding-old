@@ -1,12 +1,12 @@
-﻿using Application.Common.Interfaces.Repositories;
+﻿using Application.Authorization.Domain;
+using Application.Authorization.Interfaces;
+using Application.Common.Interfaces;
 using Application.Common.Models;
 using Dapper;
 using Domain.Contracts.Request;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -14,8 +14,12 @@ namespace Infrastructure.Repositories
 {
     public class UserRepository : RepositoryBase, IUserRepository
     {
-        public UserRepository(IDbConnection connection) : base(connection)
-        { }
+        private IIdentityRepository IdentityRepository { get; }
+
+        public UserRepository(IDbConnection connection, IIdentityRepository identityRepository) : base(connection)
+        {
+            IdentityRepository = identityRepository;
+        }
 
         public async Task<(IEnumerable<DbUser> Users, int Total)> GetAllAsync(PaginationRequest request)
         {
@@ -38,6 +42,13 @@ namespace Infrastructure.Repositories
             var users = JsonSerializer.Deserialize<IEnumerable<DbUser>>(string.Join("", result));
 
             return (users, total);
+        }
+
+        public async Task<bool> IsUsernameTakenAsync(string username)
+        {
+            var user = await IdentityRepository.GetByNameAsync(username);
+
+            return user != null;
         }
     }
 }

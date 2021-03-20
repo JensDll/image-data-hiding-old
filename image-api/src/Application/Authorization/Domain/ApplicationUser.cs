@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Authorization
+namespace Application.Authorization.Domain
 {
     public class ApplicationUser : IdentityUser<int>
     {

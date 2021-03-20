@@ -8,7 +8,8 @@ using System.Data;
 using System.Text.Json;
 using Application.Common.Models;
 using Application.Authorization;
-using Application.Common.Interfaces.Repositories;
+using Application.Authorization.Interfaces;
+using Application.Authorization.Domain;
 
 namespace Infrastructure.Repositories
 {
@@ -62,7 +63,7 @@ namespace Infrastructure.Repositories
 
         public async Task<int> DeleteAsync(int id)
         {
-            return await Connection.ExecuteAsync("spUser_Delete", param: new { id }, commandType: CommandType.StoredProcedure);
+            return await Connection.ExecuteAsync("spUsers_Delete", param: new { id }, commandType: CommandType.StoredProcedure);
         }
     }
 }

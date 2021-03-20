@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Authorization
+namespace Application.Authorization.Contracts.Response
 {
     public class AuthSuccessResponse
     {
-        public string Token { get; set; }        
+        public string Token { get; set; }
+
+        public string RefreshToken { get; set; }
     }
 }

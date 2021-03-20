@@ -1,28 +1,9 @@
 using Application.Common;
 using Application.Common.Interfaces;
-using Application.Common.Interfaces.Repositories;
-using Application.Common.Interfaces.Services;
 using Application.Common.Models;
 using Domain.Contracts.Request;
 using Domain.Contracts.Response;
-using Domain.Enums;
-using Domain.Exceptions;
-using ImageAPI.Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageAPI.Controllers
@@ -49,6 +30,15 @@ namespace ImageAPI.Controllers
                 Data = users,
                 Total = total
             });
+        }
+
+        [HttpGet(ApiRoutes.UserRoutes.IsUserNameTake)]
+        [ProducesResponseType(typeof(Envelop<bool>), 200)]
+        public async Task<IActionResult> GetAll(string username)
+        {
+            bool value = await UserRepository.IsUsernameTakenAsync(username);
+
+            return Ok(new Envelop<bool> { Data = value });
         }
     }
 }

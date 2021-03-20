@@ -12,7 +12,7 @@ namespace ImageAPI.Extensions
         {
             return httpContext.User == null
                 ? default
-                : int.Parse(httpContext.User.FindFirst("id").Value);
+                : int.Parse(httpContext.User.FindFirst("userId").Value);
         }
 
         public static string GetUsername(this HttpContext httpContext)

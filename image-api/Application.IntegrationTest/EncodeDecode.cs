@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Services;
+﻿using Application.Common.Interfaces;
 using Domain.Exceptions;
 using System;
 using System.Collections.Generic;

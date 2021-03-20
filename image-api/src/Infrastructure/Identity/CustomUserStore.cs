@@ -1,6 +1,5 @@
-﻿using Application.Authorization;
-using Application.Common.Interfaces;
-using Application.Common.Interfaces.Repositories;
+﻿using Application.Authorization.Domain;
+using Application.Authorization.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading;
@@ -25,6 +24,7 @@ namespace Infrastructure.Identity
 
             if (id > 0)
             {
+                user.Id = id;
                 return IdentityResult.Success;
             }
 
@@ -34,9 +34,21 @@ namespace Infrastructure.Identity
             });
         }
 
-        public Task<IdentityResult> DeleteAsync(ApplicationUser user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> DeleteAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            int count = await UserRepository.DeleteAsync(user.Id);
+
+            if (count > 0)
+            {
+                return IdentityResult.Success;
+            }
+
+            return IdentityResult.Failed(new IdentityError
+            {
+                Description = $"Could not delete user {user.UserName}"
+            });
         }
 
         public Task<ApplicationUser> FindByIdAsync(string userId, CancellationToken cancellationToken)

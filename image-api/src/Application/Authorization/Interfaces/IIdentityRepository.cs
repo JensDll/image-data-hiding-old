@@ -1,4 +1,5 @@
 ﻿using Application.Authorization;
+using Application.Authorization.Domain;
 using Application.Common.Interfaces;
 using Application.Common.Models;
 using Domain.Contracts.Request;
@@ -9,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace Application.Common.Interfaces.Repositories
+namespace Application.Authorization.Interfaces
 {
     public interface IIdentityRepository
     {
