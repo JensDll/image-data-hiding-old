@@ -16,6 +16,18 @@ namespace Infrastructure.Services
     {
         private readonly IEnumerableService enumerableService;
 
+        private readonly Dictionary<BitPosition, byte> lookup = new()
+        {
+            { BitPosition.One, 0 },
+            { BitPosition.Two, 1 },
+            { BitPosition.Three, 2 },
+            { BitPosition.Four, 3 },
+            { BitPosition.Five, 4 },
+            { BitPosition.Six, 5 },
+            { BitPosition.Seven, 6 },
+            { BitPosition.Eighth, 7 },
+        };
+
         public EncodeService(IEnumerableService enumerableService)
         {
             this.enumerableService = enumerableService;
@@ -31,12 +43,12 @@ namespace Infrastructure.Services
             EncodeMessageImpl(image, pixelSequence, bitSequence);
         }
 
-        private static void EncodeMessageImpl(Bitmap image,
+        private void EncodeMessageImpl(Bitmap image,
             IEnumerable<(Point, Pixel)> pixelSequence,
             IEnumerator<byte> bitSequence,
-            BitPosition bitPosition = BitPosition.One,
-            int shift = 0)
+            BitPosition bitPosition = BitPosition.One)
         {
+            byte shift = lookup[bitPosition];
             byte mask = (byte)~bitPosition;
 
             foreach (var (point, pixel) in pixelSequence)
@@ -82,7 +94,7 @@ namespace Infrastructure.Services
                 throw new MessageToLongException();
             }
 
-            EncodeMessageImpl(image, pixelSequence, bitSequence, (BitPosition)((int)bitPosition << 1), shift + 1);
+            EncodeMessageImpl(image, pixelSequence, bitSequence, (BitPosition)((byte)bitPosition << 1));
         }
 
         private static bool ShouldSkip(Point point, Bitmap image) =>

@@ -54,7 +54,7 @@ namespace Application.IntegrationTest
     {
         public EncodeDecodeTheoryData()
         {
-            var rand = new Random();
+            var rand = new Random(420);
 
             for (int i = 1000; i <= 29000; i += 7000)
             {

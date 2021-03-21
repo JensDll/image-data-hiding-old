@@ -24,7 +24,7 @@ namespace Infrastructure.Services
         {
             int length = DecodeMessageLength(image);
             var pixelSequence = EnumerableService.EvenDistribution(image);
-            var query = DecodeMessageImpl(image, pixelSequence, BitPosition.One, length * 8);
+            var query = DecodeMessageImpl(image, pixelSequence, length * 8);
 
             var result = new byte[length];
 
@@ -51,12 +51,11 @@ namespace Infrastructure.Services
 
         private static IEnumerable<byte> DecodeMessageImpl(Bitmap image,
             IEnumerable<(Point, Pixel)> pixelSequence,
-            BitPosition bitPosition,
             int messageLength)
         {
             var pixelEnumerator = pixelSequence.GetEnumerator();
 
-            byte mask = (byte)bitPosition;
+            byte mask = (byte)BitPosition.One;
             int shiftRight = 0;
 
             while (messageLength > 0)

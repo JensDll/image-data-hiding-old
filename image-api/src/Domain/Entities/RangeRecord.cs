@@ -22,17 +22,13 @@ namespace Domain.Entities
 
         public int GetMiddle() => Start + (GetLength() >> 1);
 
-        public bool TryBisect(out (RangeRecord Left, RangeRecord Right) ranges)
+        public bool TryBisect(out (RangeRecord Left, int middle, RangeRecord Right) ranges)
         {
-            int middle = GetMiddle();
+            ranges.middle = GetMiddle();
+            ranges.Left = new (Start, ranges.middle - 1);
+            ranges.Right = new (ranges.middle + 1, End);
 
-            var left = new RangeRecord(Start, middle);
-            var right = new RangeRecord(middle + 1, End);
-
-            ranges.Left = left;
-            ranges.Right = right;
-
-            return !(Start == End);
+            return GetLength() >= 2;
         }
     }
 }

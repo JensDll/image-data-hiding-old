@@ -24,6 +24,14 @@ namespace Infrastructure.Services
 
         public IEnumerable<(Point Point, Pixel Pixel)> EvenDistribution(Bitmap image)
         {
+            (Point Point, Pixel Pixel) GetValues(int x, int y)
+            {
+                Point point = new(x, y);
+                Pixel pixel = image.GetPixelValue(x, y);
+
+                return (point, pixel);
+            };
+
             Queue<RangeRecord> queue = new();
             int end = (image.Width * image.Height) - 1;
             queue.Enqueue(new RangeRecord(0, end));
@@ -36,14 +44,24 @@ namespace Infrastructure.Services
                 {
                     queue.Enqueue(ranges.Left);
                     queue.Enqueue(ranges.Right);
+
+                    int y = Math.DivRem(ranges.middle, image.Width, out int x);
+                    yield return GetValues(x, y);
                 }
                 else
                 {
-                    int y = Math.DivRem(range.Start, image.Width, out int x);
-                    Point point = new(x, y);
-                    Pixel pixel = image.GetPixelValue(x, y);
-
-                    yield return (point, pixel);
+                    if (range.GetLength() == 0)
+                    {
+                        int y = Math.DivRem(range.Start, image.Width, out int x);
+                        yield return GetValues(x, y);
+                    }
+                    else
+                    {
+                        int y1 = Math.DivRem(range.Start, image.Width, out int x1);
+                        int y2 = Math.DivRem(range.End, image.Width, out int x2);
+                        yield return GetValues(x1, y1);
+                        yield return GetValues(x2, y2);
+                    }
                 }
             }
         }
