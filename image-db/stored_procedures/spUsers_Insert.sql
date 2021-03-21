@@ -4,7 +4,9 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE OR ALTER PROCEDURE [dbo].[spUsers_Insert]
   @username NVARCHAR(100),
-  @password NVARCHAR(MAX)
+  @password NVARCHAR(MAX),
+  @registrationDate DATETIME2(7),
+  @deletionDate DATETIME2(7)
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -13,7 +15,7 @@ BEGIN
   OUTPUT
   inserted.Id
   VALUES
-    (@username, @password);
+    (@username, @password, @registrationDate, @deletionDate);
 
 END
 GO

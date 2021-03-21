@@ -11,7 +11,10 @@ AS
 BEGIN
   SET NOCOUNT ON;
 
-  SELECT Id, Username
+  SELECT
+    Id,
+    Username,
+    DeletionDate
   FROM dbo.Users
   ORDER BY Id
     OFFSET @skip ROWS
