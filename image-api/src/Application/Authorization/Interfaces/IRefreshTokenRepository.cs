@@ -11,10 +11,10 @@ namespace Application.Authorization.Interfaces
     {
         public Task<string> CreateAsync(int userId, string jwtId, DateTime creationDate, DateTime expiryDate);
 
-        public Task<RefreshToken> GetByToken(string refreshToken);
+        public Task<RefreshToken> GetByTokenAsync(string refreshToken);
 
-        public Task<int> SetUsed(int id);
+        public Task<int> SetUsedAsync(int id);
 
-        public Task<int> DeleteForUser(int userId);
+        public Task<int> DeleteForUserAsync(int userId);
     }
 }

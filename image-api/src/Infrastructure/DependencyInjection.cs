@@ -14,6 +14,7 @@ using Application.Authorization.Domain;
 using Application.Common.Interfaces;
 using System.Security.Cryptography;
 using System;
+using Application.Common;
 
 namespace Infrastructure
 {
@@ -32,10 +33,10 @@ namespace Infrastructure
             services.AddSingleton<IDecodeService, DecodeService>();
 
             // Data Access
+            services.AddSingleton<IConnectionFactory>(new ConnectionFactory(configuration.GetConnectionString("IMAGE_DB")));
             services.AddSingleton<IIdentityRepository, IdentityRepository>();
             services.AddSingleton<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddSingleton<IUserRepository, UserRepository>();
-            services.AddTransient<IDbConnection>(_ => new SqlConnection(configuration.GetConnectionString("IMAGE_DB")));
 
             // Authorization
             var csrng = new RNGCryptoServiceProvider();

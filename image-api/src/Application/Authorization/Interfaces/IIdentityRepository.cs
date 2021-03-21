@@ -18,7 +18,7 @@ namespace Application.Authorization.Interfaces
 
         Task<ApplicationUser> GetByNameAsync(string username);
 
-        Task<int> CreateAsync(string username, string password);
+        Task<int> CreateAsync(ApplicationUser user);
 
         Task<int> DeleteAsync(int id);
     }

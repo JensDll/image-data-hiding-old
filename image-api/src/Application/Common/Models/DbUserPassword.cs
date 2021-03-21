@@ -13,5 +13,9 @@ namespace Application.Common.Models
         public string Username { get; set; }
 
         public string PasswordHash { get; set; }
+
+        public DateTime RegistrationDate { get; set; }
+
+        public DateTime DeletionDate { get; set; }
     }
 }

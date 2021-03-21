@@ -38,7 +38,7 @@ namespace Application.IntegrationTest
         }
 
         [Fact]
-        public void EncodeDecode_ShouldThrowMessageToLongException()
+        public void EncodeDecode_ShouldThrowMessageToLongExceptionWhenMessageDoesNotFit()
         {
             var rand = new Random();
             var image = new Bitmap(100, 100);

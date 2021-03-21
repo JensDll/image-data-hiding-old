@@ -32,9 +32,45 @@ namespace ImageAPI.Controllers
             });
         }
 
+        [HttpGet(ApiRoutes.UserRoutes.GetById)]
+        [ProducesResponseType(typeof(DbUser), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 400)]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await UserRepository.GetBydIdAsync(id);
+
+            if (user == null)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    ErrorMessages = new[] { $"User with '{id}' does not exist." }
+                });
+            }
+
+            return Ok(user);
+        }
+
+        [HttpGet(ApiRoutes.UserRoutes.GetByUsername)]
+        [ProducesResponseType(typeof(DbUser), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 400)]
+        public async Task<IActionResult> GetByName(string username)
+        {
+            var user = await UserRepository.GetByNameAsync(username);
+
+            if (user == null)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    ErrorMessages = new[] { $"User with name '{username}' does not exist." }
+                });
+            }
+
+            return Ok(user);
+        }
+
         [HttpGet(ApiRoutes.UserRoutes.IsUserNameTake)]
         [ProducesResponseType(typeof(Envelop<bool>), 200)]
-        public async Task<IActionResult> GetAll(string username)
+        public async Task<IActionResult> IsUserNameTake(string username)
         {
             bool value = await UserRepository.IsUsernameTakenAsync(username);
 

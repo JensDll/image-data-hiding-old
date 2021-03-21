@@ -12,6 +12,10 @@ namespace Application.Common.Interfaces
     {
         Task<(IEnumerable<DbUser> Users, int Total)> GetAllAsync(PaginationRequest request);
 
+        Task<DbUser> GetByNameAsync(string username);
+
+        Task<DbUser> GetBydIdAsync(int id);
+
         Task<bool> IsUsernameTakenAsync(string username);
     }
 }

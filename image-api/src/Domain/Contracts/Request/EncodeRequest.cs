@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Domain.Contracts.Request
 {
-    public record EncodeRequest(string Username, string Message);
+    public record EncodeRequest(int UserId, string Username, string Message);
 }

@@ -1,4 +1,5 @@
-﻿using Domain.Contracts.Request;
+﻿using Application.Common.Interfaces;
+using Domain.Contracts.Request;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,11 +11,11 @@ namespace Infrastructure.Repositories
 {
     public abstract class RepositoryBase
     {
-        protected IDbConnection Connection { get; }
+        public IConnectionFactory ConnectionFactory { get; }
 
-        protected RepositoryBase(IDbConnection connection)
+        protected RepositoryBase(IConnectionFactory connectionFactory)
         {
-            Connection = connection;
+            ConnectionFactory = connectionFactory;
         }
 
         protected static (int Skip, int Take) GetSkipTake(PaginationRequest request)

@@ -23,7 +23,11 @@ namespace Application.Common
         {
             public const string GetAll = Base + "/user";
 
-            public const string IsUserNameTake = Base + "/user/{username}/taken";
+            public const string GetById = Base + "/user/{id}";
+
+            public const string GetByUsername = Base + "/user/name/{username}";
+
+            public const string IsUserNameTake = Base + "/user/name/{username}/taken";
         }
     }
 }

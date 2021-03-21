@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Services
@@ -17,16 +18,19 @@ namespace Infrastructure.Services
         private JwtSettings JwtSettings { get; }
         private TokenValidationParameters TokenValidationParameters { get; }
         private IRefreshTokenRepository RefreshTokenRepository { get; }
+        private IIdentityRepository IdentityRepository { get; }
 
         public AccountService(UserManager<ApplicationUser> userManager,
             JwtSettings jwtSettings,
             TokenValidationParameters tokenValidationParameters,
-            IRefreshTokenRepository refreshTokenRepository)
+            IRefreshTokenRepository refreshTokenRepository,
+            IIdentityRepository identityRepository)
         {
             UserManager = userManager;
             JwtSettings = jwtSettings;
             TokenValidationParameters = tokenValidationParameters;
             RefreshTokenRepository = refreshTokenRepository;
+            IdentityRepository = identityRepository;
         }
 
         public async Task<AuthResult> RegisterAsync(string username, string password)
@@ -34,6 +38,8 @@ namespace Infrastructure.Services
             var newUser = new ApplicationUser
             {
                 UserName = username,
+                RegistrationDate = DateTime.Now,
+                DeletionDate = DateTime.Now.AddMinutes(15)
             };
 
             var identityResult = await UserManager.CreateAsync(newUser, password);
@@ -47,9 +53,13 @@ namespace Infrastructure.Services
                 };
             }
 
-            _ = Task.Delay(new TimeSpan(0, 15, 0)).ContinueWith(async _ => await DelteAsync(newUser.Id));
+            _ = Task.Factory.StartNew(async () =>
+            {
+                TimeSpan delay = newUser.DeletionDate - newUser.RegistrationDate;
+                await Task.Delay(delay).ContinueWith(async _ => await IdentityRepository.DeleteAsync(newUser.Id));
+            });
 
-            return await GenerateAuthResultAsyncFor(newUser);
+            return await GenerateAuthResultForUserAsync(newUser);
         }
 
         public async Task<AuthResult> LoginAsync(string username, string password)
@@ -61,7 +71,7 @@ namespace Infrastructure.Services
                 return new AuthResult
                 {
                     Success = false,
-                    ErrorMessages = new[] { $"User with name '{username}' does not exist." }
+                    ErrorMessages = new[] { $"Login information is not correct." }
                 };
             }
 
@@ -72,16 +82,16 @@ namespace Infrastructure.Services
                 return new AuthResult
                 {
                     Success = false,
-                    ErrorMessages = new[] { "Username/Password combination is incorrect." }
+                    ErrorMessages = new[] { "Login information is not correct" }
                 };
             }
 
-            return await GenerateAuthResultAsyncFor(user);
+            return await GenerateAuthResultForUserAsync(user);
         }
 
         public async Task LogoutAsync(int id)
         {
-            await RefreshTokenRepository.DeleteForUser(id);
+            await RefreshTokenRepository.DeleteForUserAsync(id);
         }
 
         public async Task<bool> DelteAsync(int id)
@@ -103,7 +113,7 @@ namespace Infrastructure.Services
                 return new AuthResult
                 {
                     Success = false,
-                    ErrorMessages = new[] { "Token is invalid." }
+                    ErrorMessages = new[] { "This token is invalid." }
                 };
             }
 
@@ -120,59 +130,27 @@ namespace Infrastructure.Services
                 };
             }
 
-            var storedToken = await RefreshTokenRepository.GetByToken(refreshToken);
-
-            if (storedToken == null)
-            {
-                return new AuthResult
-                {
-                    Success = false,
-                    ErrorMessages = new[] { "This refresh token does not exist." }
-                };
-            }
-
-            if (DateTime.UtcNow > storedToken.ExpiryDate)
-            {
-                return new AuthResult
-                {
-                    Success = false,
-                    ErrorMessages = new[] { "This refresh token has expired." }
-                };
-            }
-
-            if (storedToken.Invalidated)
-            {
-                return new AuthResult
-                {
-                    Success = false,
-                    ErrorMessages = new[] { "This refresh token has been invalidated." }
-                };
-            }
-
-            if (storedToken.Used)
-            {
-                return new AuthResult
-                {
-                    Success = false,
-                    ErrorMessages = new[] { "This refresh token has been used." }
-                };
-            }
-
+            var storedRefreshToken = await RefreshTokenRepository.GetByTokenAsync(refreshToken);
             string jwtId = claimsPrincipal.FindFirstValue(JwtRegisteredClaimNames.Jti);
-            if (storedToken.JwtId != jwtId)
+
+            if (storedRefreshToken == null
+                || DateTime.UtcNow > storedRefreshToken.ExpiryDate
+                || storedRefreshToken.Invalidated
+                || storedRefreshToken.Used
+                || storedRefreshToken.JwtId != jwtId)
             {
                 return new AuthResult
                 {
                     Success = false,
-                    ErrorMessages = new[] { "This refresh token does not match the JWT." }
+                    ErrorMessages = new[] { "This refresh token is invalid." }
                 };
             }
 
-            await RefreshTokenRepository.SetUsed(storedToken.Id);
+            await RefreshTokenRepository.SetUsedAsync(storedRefreshToken.Id);
 
             var user = await UserManager.FindByNameAsync(claimsPrincipal.FindFirstValue("username"));
 
-            return await GenerateAuthResultAsyncFor(user);
+            return await GenerateAuthResultForUserAsync(user);
         }
 
         private ClaimsPrincipal GetClaimsPrincipalFromToken(string token)
@@ -196,12 +174,11 @@ namespace Infrastructure.Services
             }
         }
 
-        private static bool HasValidSecurityAlgorithm(SecurityToken validatedToken) =>
-            validatedToken is JwtSecurityToken securityToken &&
+        private static bool HasValidSecurityAlgorithm(SecurityToken token) =>
+            token is JwtSecurityToken securityToken &&
             securityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.CurrentCultureIgnoreCase);
 
-
-        private async Task<AuthResult> GenerateAuthResultAsyncFor(ApplicationUser user)
+        private async Task<AuthResult> GenerateAuthResultForUserAsync(ApplicationUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(JwtSettings.Secret);

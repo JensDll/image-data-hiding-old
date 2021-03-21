@@ -11,5 +11,7 @@ namespace Application.Common.Models
         public int Id { get; set; }
 
         public string Username { get; set; }
+
+        public DateTime DeletionDate { get; set; }
     }
 }

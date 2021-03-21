@@ -118,7 +118,7 @@ namespace ImageAPI.Controllers
 
         private void EncodeMessage(EncodeRequest request, Bitmap image)
         {
-            var protector = Provider.CreateProtector(GetType().FullName, request.Username);
+            var protector = Provider.CreateProtector(GetType().FullName, request.UserId.ToString(),request.Username);
             var protectedMessage = protector.Protect(Encoding.UTF8.GetBytes(request.Message));
 
             EncodeService.EnocodeMessage(image, protectedMessage);
@@ -126,7 +126,7 @@ namespace ImageAPI.Controllers
 
         private string DecodeMessage(Bitmap image)
         {
-            var protector = Provider.CreateProtector(GetType().FullName, HttpContext.GetUsername());
+            var protector = Provider.CreateProtector(GetType().FullName, HttpContext.GetUserId().ToString(), HttpContext.GetUsername());
             var protectedMessage = DecodeService.DecodeMessage(image);
             var message = protector.Unprotect(protectedMessage);
 

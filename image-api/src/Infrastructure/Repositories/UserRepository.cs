@@ -16,13 +16,15 @@ namespace Infrastructure.Repositories
     {
         private IIdentityRepository IdentityRepository { get; }
 
-        public UserRepository(IDbConnection connection, IIdentityRepository identityRepository) : base(connection)
+        public UserRepository(IConnectionFactory connectionFactory, IIdentityRepository identityRepository) : base(connectionFactory)
         {
             IdentityRepository = identityRepository;
         }
 
         public async Task<(IEnumerable<DbUser> Users, int Total)> GetAllAsync(PaginationRequest request)
         {
+            using var connection = ConnectionFactory.NewConnection;
+
             (int skip, int take) = GetSkipTake(request);
 
             var parameter = new DynamicParameters();
@@ -30,7 +32,7 @@ namespace Infrastructure.Repositories
             parameter.Add("take", take);
             parameter.Add("total", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await Connection.QueryAsync<string>("spUsers_GetAll", param: parameter, commandType: CommandType.StoredProcedure);
+            var result = await connection.QueryAsync<string>("spUsers_GetAll", param: parameter, commandType: CommandType.StoredProcedure);
 
             int total = parameter.Get<int>("total");
 
@@ -48,7 +50,32 @@ namespace Infrastructure.Repositories
         {
             var user = await IdentityRepository.GetByNameAsync(username);
 
-            return user != null;
+            return user is not null;
+        }
+
+        public async Task<DbUser> GetBydIdAsync(int id)
+        {
+            var user = await IdentityRepository.GetByIdAsync(id);
+
+
+            return user is null ? null : new DbUser
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                DeletionDate = user.DeletionDate
+            };
+        }
+
+        public async Task<DbUser> GetByNameAsync(string username)
+        {
+            var user = await IdentityRepository.GetByNameAsync(username);
+
+            return user is null ? null : new DbUser
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                DeletionDate = user.DeletionDate
+            };
         }
     }
 }

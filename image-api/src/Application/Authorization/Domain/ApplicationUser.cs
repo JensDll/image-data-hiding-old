@@ -9,5 +9,8 @@ namespace Application.Authorization.Domain
 {
     public class ApplicationUser : IdentityUser<int>
     {
+        public DateTime RegistrationDate { get; set; }
+
+        public DateTime DeletionDate { get; set; }
     }
 }
