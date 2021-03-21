@@ -43,6 +43,7 @@
 import { computed, defineComponent, ref } from 'vue';
 
 export default defineComponent({
+  name: 'FileUpload',
   props: {
     label: {
       type: String,

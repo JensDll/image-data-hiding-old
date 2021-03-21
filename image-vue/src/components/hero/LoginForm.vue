@@ -53,10 +53,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { Field, useValidation } from 'vue3-form-validation';
-import {
-  accountModuleActions,
-  accountModuleState
-} from '../../store/modules/userModule';
+import { accountModuleActions } from '../../store/modules/accountModule';
 
 type FormData = {
   username: Field<string>;
@@ -75,15 +72,14 @@ export default defineComponent({
     });
 
     return {
+      loading: ref(false),
       loginHasError: ref(false),
       ...validation
     };
   },
-  computed: {
-    ...accountModuleState
-  },
   methods: {
     async handleLogin() {
+      this.loading = true;
       const { username, password } = await this.validateFields();
       const success = await this.login({ username, password });
 
@@ -92,6 +88,7 @@ export default defineComponent({
       } else {
         this.loginHasError = true;
       }
+      this.loading = false;
     },
     ...accountModuleActions
   }

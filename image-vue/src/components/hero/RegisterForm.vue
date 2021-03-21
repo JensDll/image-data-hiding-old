@@ -75,12 +75,9 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { Field, useValidation } from 'vue3-form-validation';
-import { Envelop } from '../../services/common';
-import { apiClient } from '../../services/apiClient';
-import {
-  accountModuleActions,
-  accountModuleState
-} from '../../store/modules/userModule';
+import { Envelop } from '../../api/common';
+import { apiClient } from '../../api/apiClient';
+import { accountModuleActions } from '../../store/modules/accountModule';
 
 type FormData = {
   username: Field<string>;
@@ -111,7 +108,7 @@ export default defineComponent({
     const isNameTaken = (username: string) =>
       apiClient
         .useFetch<Envelop<boolean>>({ immediat: true })
-        .execute(`/api/user/${username}/taken`)
+        .execute(`/api/user/name/${username}/taken`)
         .get()
         .json().promise;
 
@@ -119,8 +116,12 @@ export default defineComponent({
       username: {
         $value: '',
         $rules: [
-          username => !username && 'Username is required',
+          username =>
+            /^[a-zA-Z-._@+]*$/g.test(username) ||
+            'Username can not contain special characters (except - . _ @ +)',
+          username => !username && 'Please select a username',
           async username =>
+            username &&
             (await isNameTaken(username)).data.value?.data &&
             'This username is already taken'
         ]
@@ -158,20 +159,21 @@ export default defineComponent({
     });
 
     return {
+      loading: ref(false),
       ...validation
     };
-  },
-  computed: {
-    ...accountModuleState
   },
   methods: {
     async hanldeRegister() {
       try {
+        this.loading = true;
         const { username, password } = await this.validateFields();
         await this.regiser({ username, password });
         this.$router.push({ name: 'main' });
       } catch {
         //
+      } finally {
+        this.loading = false;
       }
     },
     ...accountModuleActions

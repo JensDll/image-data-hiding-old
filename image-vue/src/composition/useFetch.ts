@@ -16,8 +16,8 @@ type State<TData> = {
   error: any;
 };
 
-type BaseOptions = {
-  beforeEach?(options: RequestOptions): Promise<void>;
+type BaseOptions<T> = {
+  beforeEach?(options: RequestOptions, extra: T): Promise<void>;
 };
 
 type FetchOptions = {
@@ -28,7 +28,10 @@ type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 
 type ToRefsState<TData> = ToRefs<UnwrapNestedRefs<State<TData>>>;
 
-export function createFetch(baseUri: string, baseOptions: BaseOptions = {}) {
+export function createFetch<T = void>(
+  baseUri: string,
+  baseOptions: BaseOptions<T> = {}
+) {
   const useFetch = <TData>(
     fetchOptions: FetchOptions = { immediat: false }
   ) => {
@@ -42,10 +45,10 @@ export function createFetch(baseUri: string, baseOptions: BaseOptions = {}) {
 
     const execute = (uri: string, headers?: RequestOptions['headers']) => {
       const parsingOptions = (options: RequestOptions) => {
-        const makeRequest = async (options: RequestOptions) => {
+        const makeRequest = async (options: RequestOptions, extra: T) => {
           try {
-            console.log(`FETCH ${options.uri}`);
-            await baseOptions.beforeEach?.(options);
+            // console.log(`FETCH ${options.uri}`);
+            await baseOptions.beforeEach?.(options, extra);
             state.loading = true;
             state.isValid = true;
             state.response = await fetch(options.uri, options);
@@ -66,21 +69,23 @@ export function createFetch(baseUri: string, baseOptions: BaseOptions = {}) {
               .then(({ data }) => {
                 state.data = data.value;
               })
-              .catch(() => {
-                console.warn('unexpected catch');
+              .catch(e => {
+                console.warn(`unexpected error: ${e}`);
               });
           }
         };
 
-        const getRequestPromise = async (type: 'json' | 'blob' | 'none') => {
-          await makeRequest(options);
+        const getRequestPromise = async (
+          type: 'json' | 'blob' | 'none',
+          extra: T
+        ) => {
+          await makeRequest(options, extra);
 
           if (
             isValidResponse(state.response) &&
             state.isValid &&
             type !== 'none'
           ) {
-            console.log(type);
             state.data = await state.response[type]();
           }
 
@@ -88,18 +93,18 @@ export function createFetch(baseUri: string, baseOptions: BaseOptions = {}) {
         };
 
         return {
-          json() {
-            const promise = getRequestPromise('json');
+          json(extra: T) {
+            const promise = getRequestPromise('json', extra);
             fetchWhenImmediat(promise);
             return { execute, promise, ...toRefs(state) };
           },
-          blob() {
-            const promise = getRequestPromise('blob');
+          blob(extra: T) {
+            const promise = getRequestPromise('blob', extra);
             fetchWhenImmediat(promise);
             return { execute, promise, ...toRefs(state) };
           },
-          none() {
-            const promise = getRequestPromise('blob');
+          none(extra: T) {
+            const promise = getRequestPromise('none', extra);
             fetchWhenImmediat(promise);
             return { execute, promise, ...toRefs(state) };
           }

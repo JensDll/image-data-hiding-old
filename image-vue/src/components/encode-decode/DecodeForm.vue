@@ -32,7 +32,8 @@
 <script lang="ts">
 import { defineComponent, reactive, ref } from 'vue';
 import { useDownload } from '../../composition';
-import { authClient } from '../../services/apiClient';
+import { authClient } from '../../api/apiClient';
+import { useStore } from '../../store';
 
 type EncodeResponse = {
   message: string;
@@ -40,6 +41,7 @@ type EncodeResponse = {
 
 export default defineComponent({
   setup() {
+    const store = useStore();
     const { loading, execute: decode } = authClient.useFetch<EncodeResponse>();
 
     const file = ref<File>();
@@ -59,7 +61,7 @@ export default defineComponent({
 
           const { isValid, data } = await decode('/api/image/decode', {})
             .post(formData)
-            .json().promise;
+            .json(store).promise;
 
           if (isValid.value && data.value) {
             useDownload().saveTextFile(

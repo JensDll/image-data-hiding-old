@@ -1,151 +1,66 @@
-import { mapActions, mapState, Module } from 'vuex';
+import { Module } from 'vuex';
 import { RootState } from '..';
-import jwtDecode, { JwtPayload } from 'jwt-decode';
-import { apiClient } from '../../services/apiClient';
 
-export type AccountModuleState = {
-  loggedIn: boolean;
-  loading: boolean;
-  username: string;
-  token: string;
-  refreshToken: string;
+const types = {
+  SET_USER: 'SET_USER',
+  RESET_STATE: 'RESET_STATE'
 };
 
-enum Mutations {
-  RESET = 'RESET',
-  SET_TOKENS = 'SET_TOKEN',
-  SET_USERNAME = 'SET_USERNAME',
-  SET_LOADING = 'SET_LOADING'
-}
-
-type UserModule = Module<AccountModuleState, RootState>;
-
-type LoginPayload = {
-  username: string;
-  password: string;
-};
-
-type RegisterPayload = {
-  username: string;
-  password: string;
-};
-
-type LoginResponse = {
-  token: string;
-  refreshToken: string;
-};
-
-type RegisterResponse = {
-  token: string;
-  refreshToken: string;
-};
-
-const INITIAL_STATE: AccountModuleState = {
+const INIT_STATE: UserModuleState = {
   loggedIn: false,
-  loading: false,
-  username: '',
-  token: '',
-  refreshToken: ''
+  user: {
+    id: 0,
+    username: '',
+    deletionDate: new Date()
+  }
 };
 
-export const accountModule: UserModule = {
+type UserModule = Module<UserModuleState, RootState>;
+
+export type ApiUser = {
+  id: number;
+  username: string;
+  deletionDate: string;
+};
+
+export type User = {
+  id: number;
+  username: string;
+  deletionDate: Date;
+};
+
+export type UserModuleState = {
+  loggedIn: boolean;
+  user: User;
+};
+
+export const userModule: UserModule = {
   namespaced: true,
   state() {
-    return { ...INITIAL_STATE };
+    return {
+      loggedIn: INIT_STATE.loggedIn,
+      user: { ...INIT_STATE.user }
+    };
   },
   mutations: {
-    [Mutations.SET_TOKENS](
-      state,
-      { token, refreshToken }: { token: string; refreshToken: string }
-    ) {
-      state.token = token;
-      state.refreshToken = refreshToken;
+    [types.SET_USER](state, user: ApiUser) {
       state.loggedIn = true;
-
-      const claims = jwtDecode<JwtPayload>(token);
-
-      if (claims.exp) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('tokenExpiryTime', claims.exp.toString());
-      }
+      state.user = {
+        id: user.id,
+        username: user.username,
+        deletionDate: new Date(user.deletionDate)
+      };
     },
-    [Mutations.SET_USERNAME](state, username: string) {
-      state.username = username;
-    },
-    [Mutations.RESET](state) {
-      Object.assign(state, INITIAL_STATE);
-    },
-    [Mutations.SET_LOADING](state, value) {
-      state.loading = value;
+    [types.RESET_STATE](state) {
+      Object.assign(state, INIT_STATE);
     }
   },
   actions: {
-    async login({ commit }, payload: LoginPayload) {
-      commit(Mutations.SET_LOADING, true);
-
-      const {
-        data,
-        isValid
-      } = await apiClient
-        .useFetch<LoginResponse>()
-        .execute('/identity/account/login')
-        .post(JSON.stringify(payload))
-        .json().promise;
-
-      if (isValid.value) {
-        commit(Mutations.SET_TOKENS, data.value);
-        commit(Mutations.SET_USERNAME, payload.username);
-      }
-      commit(Mutations.SET_LOADING, false);
-
-      return isValid.value;
+    setUser({ commit }, user: ApiUser) {
+      commit(types.SET_USER, user);
     },
-    async register({ commit }, payload: RegisterPayload) {
-      commit(Mutations.SET_LOADING, true);
-
-      const {
-        data,
-        isValid
-      } = await apiClient
-        .useFetch<RegisterResponse>()
-        .execute('/identity/account/register')
-        .post(JSON.stringify(payload))
-        .json().promise;
-
-      if (isValid.value) {
-        commit(Mutations.SET_TOKENS, data.value);
-        commit(Mutations.SET_USERNAME, payload.username);
-      }
-
-      commit(Mutations.SET_LOADING, false);
-    },
-    logout({ commit }) {
-      commit(Mutations.RESET);
+    resetState({ commit }) {
+      commit(types.RESET_STATE);
     }
   }
 };
-
-export const accountModuleActions = mapActions('accountModule', {
-  login: (dispatch, payload: LoginPayload) => dispatch('login', payload),
-  regiser: (dispatch, payload: RegisterPayload) =>
-    dispatch('register', payload),
-  logout: dispatch => dispatch('logout')
-});
-
-export const accountModuleState = mapState<
-  AccountModuleState,
-  {
-    [K in keyof AccountModuleState]: (
-      state: AccountModuleState,
-      // Remember to update this type according to the getters in gridModule
-      getters: any
-    ) => AccountModuleState[K];
-  }
->('accountModule', {
-  token: state => state.token,
-  refreshToken: state => state.refreshToken,
-  loading: state => state.loading,
-  loggedIn: state => state.loggedIn,
-  username: state => state.username
-});

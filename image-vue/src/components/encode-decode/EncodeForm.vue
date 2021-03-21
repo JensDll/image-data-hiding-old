@@ -4,18 +4,18 @@
       <div class="font-semibold mb-3">Send To</div>
       <div class="relative">
         <select
-          v-model="form.username.$value"
+          v-model="form.user.$value"
           class="w-full appearance-none p-4 my-select relative border border-emerald-300 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           :class="{
             'bg-red-50 border-red-300 focus:border-red-500 focus:ring-red-500':
-              form.username.$errors.length
+              form.user.$errors.length
           }"
         >
           <option
             v-for="user in fetchingUsers ? [] : pagedResponse?.data"
             :key="user.id"
             class="block p-4 bg-white"
-            :value="user.username"
+            :value="user"
           >
             {{ user.username }}
           </option>
@@ -39,7 +39,7 @@
         </span>
       </div>
       <div
-        v-for="(error, index) in form.username.$errors"
+        v-for="(error, index) in form.user.$errors"
         :key="index"
         class="text-sm text-red-500 mt-1"
       >
@@ -73,11 +73,12 @@
 import { computed, ref, defineComponent } from 'vue';
 import { Field, useValidation } from 'vue3-form-validation';
 import { useDownload } from '../../composition';
-import { PagedResponse } from '../../services/common';
-import { apiClient, authClient } from '../../services/apiClient';
+import { PagedResponse } from '../../api/common';
+import { apiClient, authClient } from '../../api/apiClient';
+import { useStore } from '../../store';
 
 type FormData = {
-  username: Field<string>;
+  user: Field<User>;
   message: Field<string>;
 };
 
@@ -88,10 +89,11 @@ type User = {
 
 export default defineComponent({
   setup() {
+    const store = useStore();
     const { form, validateFields } = useValidation<FormData>({
-      username: {
-        $value: '',
-        $rules: [username => !username && 'Please select a username']
+      user: {
+        $value: null as any,
+        $rules: [user => !user && 'Please select a username']
       },
       message: {
         $value: ''
@@ -118,22 +120,30 @@ export default defineComponent({
 
     const handleSubmit = async () => {
       try {
-        const { username, message } = await validateFields();
+        const { user, message } = await validateFields();
 
         const formData = new FormData();
 
         if (file.value) {
           formData.append('file', file.value, file.value.name);
-          formData.append('username', username);
+          formData.append('userId', user.id.toString());
+          formData.append('username', user.username);
           formData.append('message', message);
         }
 
         const promise = file.value
-          ? encodeWithFile('/api/image/encode/file', {}).post(formData).blob()
-              .promise
+          ? encodeWithFile('/api/image/encode/file', {})
+              .post(formData)
+              .blob(store).promise
           : encodeRandom('/api/image/encode/random')
-              .post(JSON.stringify({ username, message }))
-              .blob().promise;
+              .post(
+                JSON.stringify({
+                  userId: user.id,
+                  username: user.username,
+                  message
+                })
+              )
+              .blob(store).promise;
 
         const { isValid, data: image } = await promise;
 

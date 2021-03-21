@@ -12,6 +12,7 @@
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
+  name: 'BaseButton',
   props: {
     htmlType: {
       type: String as PropType<'button' | 'reset' | 'submit'>,

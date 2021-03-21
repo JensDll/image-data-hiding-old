@@ -40,7 +40,7 @@ export const router = createRouter({
 });
 
 router.beforeEach(to => {
-  const userLoggedIn = store.state.accountModule.loggedIn;
+  const userLoggedIn = store.state.userModule.loggedIn;
 
   if (
     typeof to.name === 'string' &&

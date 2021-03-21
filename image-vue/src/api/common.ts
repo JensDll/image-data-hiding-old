@@ -7,6 +7,12 @@ export type Envelop<T> = {
   data: T;
 };
 
+export type JwtClaims = {
+  exp: string;
+  userId: string;
+  username: string;
+};
+
 export const isCurrentTokenExpired = () => {
   const expiryTime = localStorage.getItem('tokenExpiryTime');
 

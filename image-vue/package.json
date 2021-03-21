@@ -7,7 +7,6 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@vueuse/core": "^4.4.1",
     "jwt-decode": "^3.1.2",
     "vue": "^3.0.6",
     "vue-router": "^4.0.4",
