@@ -20,13 +20,13 @@ type BaseOptions<T> = {
   beforeEach?(options: RequestOptions, extra: T): Promise<void>;
 };
 
-type FetchOptions = {
-  immediat: boolean;
-};
-
 type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 
 type ToRefsState<TData> = ToRefs<UnwrapNestedRefs<State<TData>>>;
+
+export type FetchOptions = {
+  immediat: boolean;
+};
 
 export function createFetch<T = void>(
   baseUri: string,

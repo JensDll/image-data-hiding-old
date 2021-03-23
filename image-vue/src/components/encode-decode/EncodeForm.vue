@@ -70,12 +70,12 @@
 </template>
 
 <script lang="ts">
-import { computed, ref, defineComponent } from 'vue';
+import { ref, defineComponent } from 'vue';
 import { Field, useValidation } from 'vue3-form-validation';
 import { useDownload } from '../../composition';
-import { PagedResponse } from '../../api/common';
-import { apiClient, authClient } from '../../api/apiClient';
 import { useStore } from '../../store';
+import { userService } from '../../api/userService';
+import { imageService } from '../../api/imageService';
 
 type FormData = {
   user: Field<User>;
@@ -100,26 +100,16 @@ export default defineComponent({
       }
     });
 
-    const { data: pagedResponse, loading: fetchingUsers } = apiClient
-      .useFetch<PagedResponse<User>>({ immediat: true })
-      .execute('/api/user?pageNumber=1&pageSize=200')
-      .get()
-      .json();
+    const { data: pagedResponse, loading: fetchingUsers } = userService({
+      immediat: true
+    }).getAll(1, 200);
 
-    const {
-      loading: loadingRandom,
-      execute: encodeRandom
-    } = authClient.useFetch<Blob>();
-
-    const {
-      loading: loadingWithFile,
-      execute: encodeWithFile
-    } = authClient.useFetch<Blob>();
-
+    const encoding = ref(false);
     const file = ref<File>();
 
     const handleSubmit = async () => {
       try {
+        encoding.value = true;
         const { user, message } = await validateFields();
 
         const formData = new FormData();
@@ -132,26 +122,25 @@ export default defineComponent({
         }
 
         const promise = file.value
-          ? encodeWithFile('/api/image/encode/file', {})
-              .post(formData)
-              .blob(store).promise
-          : encodeRandom('/api/image/encode/random')
-              .post(
-                JSON.stringify({
-                  userId: user.id,
-                  username: user.username,
-                  message
-                })
-              )
-              .blob(store).promise;
+          ? imageService().encodeWithFile(formData, store).promise
+          : imageService().encodeRandom(
+              {
+                userId: user.id,
+                username: user.username,
+                message
+              },
+              store
+            ).promise;
 
         const { isValid, data: image } = await promise;
 
         if (isValid.value && image.value) {
           useDownload().saveImage(image.value, 'secret.png');
         }
-      } catch (e) {
-        console.log(e);
+      } catch {
+        //
+      } finally {
+        encoding.value = false;
       }
     };
 
@@ -160,7 +149,7 @@ export default defineComponent({
       form,
       pagedResponse,
       fetchingUsers,
-      encoding: computed(() => loadingWithFile.value || loadingRandom.value),
+      encoding,
       handleSubmit
     };
   }

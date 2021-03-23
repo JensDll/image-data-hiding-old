@@ -3,13 +3,9 @@ import { createFetch } from '../composition';
 import { RootState } from '../store';
 import { isCurrentTokenExpired } from './common';
 import { MUTATIONS } from '../store/modules/accountModule';
+import { accountService } from './accountService';
 
 const BASE_URI = 'https://localhost:5001';
-
-type RefreshTokenResponse = {
-  token: string;
-  refreshToken: string;
-};
 
 export const apiClient = createFetch(BASE_URI);
 
@@ -19,11 +15,10 @@ export const authClient = createFetch<Store<RootState>>(BASE_URI, {
     const refreshToken = store.state.accountModule.refreshToken;
 
     if (isCurrentTokenExpired()) {
-      const { data } = await apiClient
-        .useFetch<RefreshTokenResponse>()
-        .execute('/identity/account/refresh')
-        .post(JSON.stringify({ token, refreshToken }))
-        .json().promise;
+      const { data } = await accountService().refreshTokens({
+        token,
+        refreshToken
+      }).promise;
 
       if (data.value) {
         store.commit(`accountModule/${MUTATIONS.UPDATE_TOKENS}`, data.value);

@@ -1,28 +1,18 @@
 import { mapActions, mapState, Module } from 'vuex';
 import jwtDecode from 'jwt-decode';
 import { JwtClaims } from '../../api/common';
-import { ApiUser } from './userModule';
-import { apiClient, authClient } from '../../api/apiClient';
 import { RootState } from '..';
-
-type LoginData = {
-  username: string;
-  password: string;
-};
-
-type RegisterData = {
-  username: string;
-  password: string;
-};
+import {
+  accountService,
+  ApiTokens,
+  LoginRequest,
+  RegisterRequest
+} from '../../api/accountService';
+import { userService } from '../../api/userService';
 
 const INITIAL_STATE: AccountModuleState = {
   token: '',
   refreshToken: ''
-};
-
-type ApiTokens = {
-  token: string;
-  refreshToken: string;
 };
 
 type AccountModule = Module<AccountModuleState, RootState>;
@@ -57,21 +47,13 @@ export const accountModule: AccountModule = {
     }
   },
   actions: {
-    async login({ dispatch, commit }, loginData: LoginData) {
+    async login({ dispatch, commit }, request: LoginRequest) {
       const [
         { data: tokens, isValid: isValidTokens },
         { data: user, isValid: isValidUser }
       ] = await Promise.all([
-        apiClient
-          .useFetch<ApiTokens>()
-          .execute('/identity/account/login')
-          .post(JSON.stringify(loginData))
-          .json().promise,
-        apiClient
-          .useFetch<ApiUser>()
-          .execute(`/api/user/name/${loginData.username}`)
-          .get()
-          .json().promise
+        accountService().login(request).promise,
+        userService().getByName(request.username).promise
       ]);
 
       const isValid = isValidTokens.value && isValidUser.value;
@@ -83,24 +65,16 @@ export const accountModule: AccountModule = {
 
       return isValid;
     },
-    async register({ dispatch, commit }, registerData: RegisterData) {
+    async register({ dispatch, commit }, request: RegisterRequest) {
       const {
         data: tokens,
         isValid: isValidTokens
-      } = await apiClient
-        .useFetch<ApiTokens>()
-        .execute('/identity/account/register')
-        .post(JSON.stringify(registerData))
-        .json().promise;
+      } = await accountService().register(request).promise;
 
       const {
         data: user,
         isValid: isValidUser
-      } = await apiClient
-        .useFetch<ApiUser>()
-        .execute(`/api/user/name/${registerData.username}`)
-        .get()
-        .json().promise;
+      } = await userService().getByName(request.username).promise;
 
       const isValid = isValidTokens.value && isValidUser.value;
 
@@ -114,22 +88,14 @@ export const accountModule: AccountModule = {
     async logout({ commit, dispatch }) {
       dispatch('userModule/resetState', null, { root: true });
 
-      await authClient
-        .useFetch()
-        .execute('/identity/account/logout')
-        .delete()
-        .none(this).promise;
+      await accountService().logout(this).promise;
 
       commit(MUTATIONS.RESET_STATE);
     },
     async deleteAccount({ commit, dispatch }) {
       dispatch('userModule/resetState', null, { root: true });
 
-      await authClient
-        .useFetch()
-        .execute('/identity/account/delete')
-        .delete()
-        .none(this).promise;
+      await accountService().deleteAccount(this).promise;
 
       commit(MUTATIONS.RESET_STATE);
     }
@@ -137,8 +103,9 @@ export const accountModule: AccountModule = {
 };
 
 export const accountModuleActions = mapActions('accountModule', {
-  login: (dispatch, payload: LoginData) => dispatch('login', payload),
-  regiser: (dispatch, payload: RegisterData) => dispatch('register', payload),
+  login: (dispatch, payload: LoginRequest) => dispatch('login', payload),
+  regiser: (dispatch, payload: RegisterRequest) =>
+    dispatch('register', payload),
   logout: dispatch => dispatch('logout'),
   deleteAccount: dispatch => dispatch('deleteAccount')
 });

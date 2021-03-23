@@ -75,9 +75,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { Field, useValidation } from 'vue3-form-validation';
-import { Envelop } from '../../api/common';
-import { apiClient } from '../../api/apiClient';
 import { accountModuleActions } from '../../store/modules/accountModule';
+import { userService } from '../../api/userService';
 
 type FormData = {
   username: Field<string>;
@@ -105,13 +104,6 @@ export default defineComponent({
     const minLength = (password: string) =>
       password.length > 7 || 'Password must be longer than 7 characters';
 
-    const isNameTaken = (username: string) =>
-      apiClient
-        .useFetch<Envelop<boolean>>({ immediat: true })
-        .execute(`/api/user/name/${username}/taken`)
-        .get()
-        .json().promise;
-
     const validation = useValidation<FormData>({
       username: {
         $value: '',
@@ -122,7 +114,8 @@ export default defineComponent({
           username => !username && 'Please select a username',
           async username =>
             username &&
-            (await isNameTaken(username)).data.value?.data &&
+            (await userService().isUsernameTaken(username).promise).data.value
+              ?.data &&
             'This username is already taken'
         ]
       },

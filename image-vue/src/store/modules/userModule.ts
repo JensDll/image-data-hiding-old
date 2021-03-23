@@ -1,5 +1,6 @@
 import { Module } from 'vuex';
 import { RootState } from '..';
+import { ApiUser } from '../../api/userService';
 
 const types = {
   SET_USER: 'SET_USER',
@@ -16,12 +17,6 @@ const INIT_STATE: UserModuleState = {
 };
 
 type UserModule = Module<UserModuleState, RootState>;
-
-export type ApiUser = {
-  id: number;
-  username: string;
-  deletionDate: string;
-};
 
 export type User = {
   id: number;

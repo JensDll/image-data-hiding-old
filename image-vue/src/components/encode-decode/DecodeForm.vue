@@ -32,17 +32,13 @@
 <script lang="ts">
 import { defineComponent, reactive, ref } from 'vue';
 import { useDownload } from '../../composition';
-import { authClient } from '../../api/apiClient';
 import { useStore } from '../../store';
-
-type EncodeResponse = {
-  message: string;
-};
+import { imageService } from '../../api/imageService';
 
 export default defineComponent({
   setup() {
     const store = useStore();
-    const { loading, execute: decode } = authClient.useFetch<EncodeResponse>();
+    const loading = ref(false);
 
     const file = ref<File>();
     const errors = reactive({
@@ -53,15 +49,13 @@ export default defineComponent({
     const handleDecode = async () => {
       errors.fileValidationError = false;
       errors.permissionError = false;
-
+      loading.value = true;
       try {
         if (file.value) {
-          const formData = new FormData();
-          formData.append('file', file.value, file.value.name);
-
-          const { isValid, data } = await decode('/api/image/decode', {})
-            .post(formData)
-            .json(store).promise;
+          const { isValid, data } = await imageService().decodeMessage(
+            file.value,
+            store
+          ).promise;
 
           if (isValid.value && data.value) {
             useDownload().saveTextFile(
@@ -77,6 +71,8 @@ export default defineComponent({
         }
       } catch {
         //
+      } finally {
+        loading.value = false;
       }
     };
 
