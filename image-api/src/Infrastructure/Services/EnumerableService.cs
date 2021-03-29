@@ -34,7 +34,7 @@ namespace Infrastructure.Services
 
             Queue<RangeRecord> queue = new();
             int end = (image.Width * image.Height) - 1;
-            queue.Enqueue(new RangeRecord(0, end));
+            queue.Enqueue(new RangeRecord(2, end - 1));
 
             while (queue.Count > 0)
             {

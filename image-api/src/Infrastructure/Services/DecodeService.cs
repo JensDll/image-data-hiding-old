@@ -62,16 +62,14 @@ namespace Infrastructure.Services
             {
                 if (pixelEnumerator.MoveNext())
                 {
-                    var (point, (R, G, B)) = pixelEnumerator.Current;
-
-                    if (ShouldSkip(point, image)) continue;
+                    var (_, pixel) = pixelEnumerator.Current;
 
                     if (messageLength-- > 0)
-                        yield return (byte)((R & mask) >> shiftRight);
+                        yield return (byte)((pixel.R & mask) >> shiftRight);
                     if (messageLength-- > 0)
-                        yield return (byte)((G & mask) >> shiftRight);
+                        yield return (byte)((pixel.G & mask) >> shiftRight);
                     if (messageLength-- > 0)
-                        yield return (byte)((B & mask) >> shiftRight);
+                        yield return (byte)((pixel.B & mask) >> shiftRight);
                 }
                 else
                 {
@@ -86,22 +84,24 @@ namespace Infrastructure.Services
 
         private static int DecodeMessageLength(Bitmap image)
         {
-            var (r1, g1, b1) = image.GetPixelValue(0, 0);
-            var (r2, g2, b2) = image.GetPixelValue(image.Width - 1, image.Height - 1);
+            var (r1, g1, b1) = image.GetPixelValue(0, 0); // 1.5 byte
+            var (r2, g2, _) = image.GetPixelValue(1, 0); // 1 byte 
+            var (r3, g3, b3) = image.GetPixelValue(image.Width - 1, image.Height - 1); // 1.5 byte
 
             byte mask = 0b_0000_1111;
 
             int a = r1 & mask;
             int b = (g1 & mask) << 4;
             int c = (b1 & mask) << 8;
+
             int d = (r2 & mask) << 12;
             int e = (g2 & mask) << 16;
-            int f = (b2 & mask) << 20;
 
-            return a + b + c + d + e + f;
+            int f = (r3 & mask) << 20;
+            int g = (g3 & mask) << 24;
+            int h = (b3 & mask) << 28;
+
+            return a | b | c | d | e | f | g | h;
         }
-
-        private static bool ShouldSkip(Point point, Bitmap image) =>
-            point == new Point(0, 0) || point == new Point(image.Width - 1, image.Height - 1);
     }
 }

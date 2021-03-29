@@ -18,24 +18,21 @@ namespace Application.UnitTests.Common.Services
 
         public IEnumerableService Sut { get; }
 
-        [Fact]
-        public void EvenDistribution_ShouldContainAllItems()
+        [Theory]
+        [InlineData(10, 10)]
+        [InlineData(100, 100)]
+        [InlineData(500, 1000)]
+        [InlineData(1000, 1000)]
+        public void EvenDistribution_ShouldContainTheCorrectItems(int width, int height)
         {
-            var image = new Bitmap(10, 10);
+            var image = new Bitmap(width, height);
 
-            int count = Sut.EvenDistribution(image).Count();
+            var q = Sut.EvenDistribution(image).Select(x => x.Point);
 
-            Assert.Equal(10 * 10, count);
-        }
-
-        [Fact]
-        public void EvenDistribution_ShouldNotHaveDuplicates()
-        {
-            var image = new Bitmap(100, 100);
-
-            int distinctCount = Sut.EvenDistribution(image).Select(x => x.Point).Distinct().Count();
-
-            Assert.Equal(100 * 100, distinctCount);
+            Assert.DoesNotContain(new Point(0, 0), q);
+            Assert.DoesNotContain(new Point(1, 0), q);
+            Assert.DoesNotContain(new Point(width - 1, height - 1), q);
+            Assert.Equal(width * height - 3, q.Distinct().Count());
         }
 
         [Fact]
