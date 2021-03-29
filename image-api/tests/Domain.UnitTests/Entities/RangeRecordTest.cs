@@ -27,19 +27,18 @@ namespace Domain.UnitTests.Entities
             yield return new object[] { new RangeRecord(0, 20), new RangeRecord(0, 9), 10, new RangeRecord(11, 20) };
             yield return new object[] { new RangeRecord(0, 5), new RangeRecord(0, 1), 2, new RangeRecord(3, 5) };
             yield return new object[] { new RangeRecord(5, 10), new RangeRecord(5, 6), 7, new RangeRecord(8, 10) };
+            yield return new object[] { new RangeRecord(9, 10), new RangeRecord(9, 9), -1, new RangeRecord(10, 10) };
         }
 
         public static IEnumerable<object[]> TryBisectDataFail()
         {
             yield return new[] { new RangeRecord(0, 0) };
             yield return new[] { new RangeRecord(10, 10) };
-            yield return new[] { new RangeRecord(0, 1) };
-            yield return new[] { new RangeRecord(10, 11) };
         }
 
         [Theory]
         [MemberData(nameof(TryBisectDataSuccess))]
-        public void TryBisect_ShouldWorkWhenRangeLengthIsGreaterThanOrEqualToThree(RangeRecord range, RangeRecord left, int middle, RangeRecord right)
+        public void TryBisect_ShouldWorkWhenRangeLengthIsGreaterThanZero(RangeRecord range, RangeRecord left, int middle, RangeRecord right)
         {
             bool success = range.TryBisect(out var ranges);
 
@@ -51,7 +50,7 @@ namespace Domain.UnitTests.Entities
 
         [Theory]
         [MemberData(nameof(TryBisectDataFail))]
-        public void TryBisect_ShoulFailWhenRangeLengthIsLessThanThree(RangeRecord range)
+        public void TryBisect_ShoulFailWhenRangeIsZero(RangeRecord range)
         {
             bool success = range.TryBisect(out _);
 

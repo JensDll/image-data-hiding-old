@@ -45,23 +45,16 @@ namespace Infrastructure.Services
                     queue.Enqueue(ranges.Left);
                     queue.Enqueue(ranges.Right);
 
-                    int y = Math.DivRem(ranges.middle, image.Width, out int x);
-                    yield return GetValues(x, y);
+                    if (ranges.middle != -1)
+                    {
+                        int y = Math.DivRem(ranges.middle, image.Width, out int x);
+                        yield return GetValues(x, y);
+                    }
                 }
                 else
                 {
-                    if (range.GetLength() == 0)
-                    {
-                        int y = Math.DivRem(range.Start, image.Width, out int x);
-                        yield return GetValues(x, y);
-                    }
-                    else
-                    {
-                        int y1 = Math.DivRem(range.Start, image.Width, out int x1);
-                        int y2 = Math.DivRem(range.End, image.Width, out int x2);
-                        yield return GetValues(x1, y1);
-                        yield return GetValues(x2, y2);
-                    }
+                    int y = Math.DivRem(range.Start, image.Width, out int x);
+                    yield return GetValues(x, y);
                 }
             }
         }

@@ -24,11 +24,23 @@ namespace Domain.Entities
 
         public bool TryBisect(out (RangeRecord Left, int middle, RangeRecord Right) ranges)
         {
-            ranges.middle = GetMiddle();
-            ranges.Left = new (Start, ranges.middle - 1);
-            ranges.Right = new (ranges.middle + 1, End);
+            int length = GetLength();
 
-            return GetLength() >= 2;
+            if (length == 1)
+            {
+                ranges.middle = -1;
+                ranges.Left = new(Start, Start);
+                ranges.Right = new(End, End);
+            }
+            else
+            {
+                ranges.middle = GetMiddle();
+                ranges.Left = new(Start, ranges.middle - 1);
+                ranges.Right = new(ranges.middle + 1, End);
+            }
+
+
+            return GetLength() > 0;
         }
     }
 }
