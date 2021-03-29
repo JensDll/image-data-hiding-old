@@ -109,7 +109,7 @@ export default defineComponent({
         $value: '',
         $rules: [
           username =>
-            /^[a-zA-Z-._@+]*$/g.test(username) ||
+            /^[0-9a-zA-Z-._@+]*$/g.test(username) ||
             'Username can not contain special characters (except - . _ @ +)',
           username => !username && 'Please select a username',
           async username =>
