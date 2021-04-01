@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.API.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -22,7 +22,6 @@ namespace Application.UnitTests.Common.Services
         [InlineData(10, 10)]
         [InlineData(100, 100)]
         [InlineData(500, 1000)]
-        [InlineData(1000, 1000)]
         public void EvenDistribution_ShouldContainTheCorrectItems(int width, int height)
         {
             var image = new Bitmap(width, height);

@@ -1,5 +1,5 @@
-﻿using Application.Common.Interfaces;
-using Infrastructure.Services;
+﻿using Application.API.Interfaces;
+using Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -11,11 +11,9 @@ namespace Application.IntegrationTest
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services)
+        public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IEnumerableService, EnumerableService>();
-            services.AddTransient<IEncodeService, EncodeService>();
-            services.AddTransient<IDecodeService, DecodeService>();
+            services.AddInfrastructure(null);
         }
     }
 }

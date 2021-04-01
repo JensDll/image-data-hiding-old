@@ -1,7 +1,7 @@
-﻿using Application.Common;
-using Application.Common.Interfaces;
-using Domain.Contracts.Request;
-using Domain.Contracts.Response;
+﻿using Application.API.Interfaces;
+using Contracts.API;
+using Contracts.API.Request;
+using Contracts.API.Response;
 using Domain.Exceptions;
 using ImageAPI.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,7 +41,7 @@ namespace ImageAPI.Controllers
         }
 
         [HttpPost(ApiRoutes.ImageRoutes.EncodeFile)]
-        public async Task<IActionResult> EncodeFile([FromForm] EncodeRequest request, IFormFile file)
+        public async Task<IActionResult> EncodeFile([FromForm] EncodeRequestDto request, IFormFile file)
         {
             using var imageStream = new MemoryStream();
 
@@ -52,7 +52,7 @@ namespace ImageAPI.Controllers
         }
 
         [HttpPost(ApiRoutes.ImageRoutes.EncodeRandom)]
-        public async Task<IActionResult> EncodeRandom([FromBody] EncodeRequest request)
+        public async Task<IActionResult> EncodeRandom([FromBody] EncodeRequestDto request)
         {
             using var imageStream = await HttpClient.GetStreamAsync("https://picsum.photos/1000");
 
@@ -62,8 +62,8 @@ namespace ImageAPI.Controllers
         }
 
         [HttpPost(ApiRoutes.ImageRoutes.Decode)]
-        [ProducesResponseType(typeof(DecodeResponse), 200)]
-        [ProducesResponseType(typeof(ErrorResponse), 400)]
+        [ProducesResponseType(typeof(DecodeResponseDto), 200)]
+        [ProducesResponseType(typeof(ErrorResponseDto), 400)]
         public async Task<IActionResult> Decode(IFormFile file)
         {
             if (file == null)
@@ -81,21 +81,21 @@ namespace ImageAPI.Controllers
             {
                 string message = DecodeMessage(image);
 
-                return Ok(new DecodeResponse
+                return Ok(new DecodeResponseDto
                 {
                     Message = message
                 });
             }
             catch (CryptographicException e)
             {
-                return BadRequest(new ErrorResponse
+                return BadRequest(new ErrorResponseDto
                 {
                     ErrorMessages = new[] { e.Message }
                 });
             }
         }
 
-        private IActionResult EncodeRequest(EncodeRequest request, Bitmap image)
+        private IActionResult EncodeRequest(EncodeRequestDto request, Bitmap image)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace ImageAPI.Controllers
             }
             catch (MessageToLongException e)
             {
-                return BadRequest(new ErrorResponse
+                return BadRequest(new ErrorResponseDto
                 {
                     ErrorMessages = new[] { e.Message }
                 });
@@ -116,7 +116,7 @@ namespace ImageAPI.Controllers
             return File(resultStream.ToArray(), "image/png");
         }
 
-        private void EncodeMessage(EncodeRequest request, Bitmap image)
+        private void EncodeMessage(EncodeRequestDto request, Bitmap image)
         {
             var protector = Provider.CreateProtector(GetType().FullName, request.UserId.ToString(), "-", request.Username);
             var protectedMessage = protector.Protect(Encoding.UTF8.GetBytes(request.Message));
