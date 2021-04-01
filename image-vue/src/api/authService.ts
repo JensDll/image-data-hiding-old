@@ -23,39 +23,39 @@ export type ApiTokens = {
   refreshToken: string;
 };
 
-export const accountService = (fetchOptions?: FetchOptions) => ({
+export const authService = (fetchOptions?: FetchOptions) => ({
   login(request: LoginRequest) {
     return apiClient
       .useFetch<ApiTokens>(fetchOptions)
-      .execute('/identity/account/login')
+      .execute('/auth/login')
       .post(JSON.stringify(request))
       .json();
   },
   register(request: RegisterRequest) {
     return apiClient
       .useFetch<ApiTokens>(fetchOptions)
-      .execute('/identity/account/register')
+      .execute('/auth/register')
       .post(JSON.stringify(request))
       .json();
   },
   refreshTokens(tokens: RefreshTokensRequest) {
     return apiClient
       .useFetch<ApiTokens>()
-      .execute('/identity/account/refresh')
+      .execute('/auth/refresh')
       .post(JSON.stringify(tokens))
       .json();
   },
   logout(store: Store<RootState>) {
     return authClient
       .useFetch(fetchOptions)
-      .execute('/identity/account/logout')
+      .execute('/auth/logout')
       .delete()
       .none(store);
   },
   deleteAccount(store: Store<RootState>) {
     return authClient
       .useFetch(fetchOptions)
-      .execute('/identity/account/delete')
+      .execute('/auth/delete')
       .delete()
       .none(store);
   }

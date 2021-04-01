@@ -19,7 +19,7 @@ export default defineComponent({
       async () => {
         router.push({ name: 'home' });
         store.commit('userModule/RESET_STATE');
-        store.commit('accountModule/RESET_STATE');
+        store.commit('authModule/RESET_STATE');
       }
     );
 

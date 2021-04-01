@@ -137,7 +137,7 @@ export default defineComponent({
         if (isValid.value && image.value) {
           useDownload().saveImage(image.value, 'secret.png');
         }
-      } catch {
+      } catch (e) {
         //
       } finally {
         encoding.value = false;

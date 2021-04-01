@@ -3,19 +3,19 @@ import jwtDecode from 'jwt-decode';
 import { JwtClaims } from '../../api/common';
 import { RootState } from '..';
 import {
-  accountService,
+  authService,
   ApiTokens,
   LoginRequest,
   RegisterRequest
-} from '../../api/accountService';
+} from '../../api/authService';
 import { userService } from '../../api/userService';
 
-const INITIAL_STATE: AccountModuleState = {
+const INITIAL_STATE: AuthModuleState = {
   token: '',
   refreshToken: ''
 };
 
-type AccountModule = Module<AccountModuleState, RootState>;
+type AuthModule = Module<AuthModuleState, RootState>;
 
 export const MUTATIONS = {
   RESET_STATE: 'RESET_STATE',
@@ -23,12 +23,12 @@ export const MUTATIONS = {
   SET_LOADING: 'SET_LOADING'
 };
 
-export type AccountModuleState = {
+export type AuthModuleState = {
   token: string;
   refreshToken: string;
 };
 
-export const accountModule: AccountModule = {
+export const authModule: AuthModule = {
   namespaced: true,
   state() {
     return { ...INITIAL_STATE };
@@ -52,7 +52,7 @@ export const accountModule: AccountModule = {
         { data: tokens, isValid: isValidTokens },
         { data: user, isValid: isValidUser }
       ] = await Promise.all([
-        accountService().login(request).promise,
+        authService().login(request).promise,
         userService().getByName(request.username).promise
       ]);
 
@@ -69,7 +69,7 @@ export const accountModule: AccountModule = {
       const {
         data: tokens,
         isValid: isValidTokens
-      } = await accountService().register(request).promise;
+      } = await authService().register(request).promise;
 
       const {
         data: user,
@@ -88,21 +88,21 @@ export const accountModule: AccountModule = {
     async logout({ commit, dispatch }) {
       dispatch('userModule/resetState', null, { root: true });
 
-      await accountService().logout(this).promise;
+      await authService().logout(this).promise;
 
       commit(MUTATIONS.RESET_STATE);
     },
     async deleteAccount({ commit, dispatch }) {
       dispatch('userModule/resetState', null, { root: true });
 
-      await accountService().deleteAccount(this).promise;
+      await authService().deleteAccount(this).promise;
 
       commit(MUTATIONS.RESET_STATE);
     }
   }
 };
 
-export const accountModuleActions = mapActions('accountModule', {
+export const authModuleActions = mapActions('authModule', {
   login: (dispatch, payload: LoginRequest) => dispatch('login', payload),
   regiser: (dispatch, payload: RegisterRequest) =>
     dispatch('register', payload),
@@ -110,16 +110,16 @@ export const accountModuleActions = mapActions('accountModule', {
   deleteAccount: dispatch => dispatch('deleteAccount')
 });
 
-export const accountModuleState = mapState<
-  AccountModuleState,
+export const authModuleState = mapState<
+  AuthModuleState,
   {
-    [K in keyof AccountModuleState]: (
-      state: AccountModuleState,
+    [K in keyof AuthModuleState]: (
+      state: AuthModuleState,
       // Remember to update this type according to the getters in gridModule
       getters: any
-    ) => AccountModuleState[K];
+    ) => AuthModuleState[K];
   }
->('accountModule', {
+>('authModule', {
   token: state => state.token,
   refreshToken: state => state.refreshToken
 });

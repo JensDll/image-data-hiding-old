@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import { defineComponent } from '@vue/runtime-core';
-import { accountModuleActions } from '../store/modules/accountModule';
+import { authModuleActions } from '../store/modules/authModule';
 
 export default defineComponent({
   methods: {
@@ -45,7 +45,7 @@ export default defineComponent({
       this.$router.push({ name: 'home' });
       await this.deleteAccount();
     },
-    ...accountModuleActions
+    ...authModuleActions
   }
 });
 </script>

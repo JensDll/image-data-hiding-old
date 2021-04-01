@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import CallToAction from '../components/hero/CallToAction.vue';
 import LoginForm from '../components/hero/LoginForm.vue';
 import RegisterForm from '../components/hero/RegisterForm.vue';
-import Main from '../components/encode-decode/Main.vue';
+import Main from '../components/main/Main.vue';
 import { store } from '../store';
 import ErrorPage from '../views/ErrorPage.vue';
 

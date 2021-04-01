@@ -75,7 +75,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { Field, useValidation } from 'vue3-form-validation';
-import { accountModuleActions } from '../../store/modules/accountModule';
+import { authModuleActions } from '../../store/modules/authModule';
 import { userService } from '../../api/userService';
 
 type FormData = {
@@ -169,7 +169,7 @@ export default defineComponent({
         this.loading = false;
       }
     },
-    ...accountModuleActions
+    ...authModuleActions
   }
 });
 </script>
