@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Contracts.Request
+namespace API.Contracts.Request
 {
     public record PaginationRequest
     {

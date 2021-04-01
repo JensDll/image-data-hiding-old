@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Application.IntegrationTest
 {
-    public class EncodeDecode
+    public class EncodeDecodeTest
     {
         public IEncodeService EncodeService { get; }
 
@@ -18,7 +18,7 @@ namespace Application.IntegrationTest
 
         public static EncodeDecodeTheoryData Data = new();
 
-        public EncodeDecode(IEncodeService encodeService, IDecodeService decodeService)
+        public EncodeDecodeTest(IEncodeService encodeService, IDecodeService decodeService)
         {
             EncodeService = encodeService;
             DecodeService = decodeService;

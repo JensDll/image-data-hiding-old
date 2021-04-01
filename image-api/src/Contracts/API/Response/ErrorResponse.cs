@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Contracts.Response
+namespace API.Contracts.Response
 {
-    public class DecodeResponse
+    public class ErrorResponse
     {
-        public string Message { get; set; }
+        public IEnumerable<string> ErrorMessages { get; set; }
     }
 }

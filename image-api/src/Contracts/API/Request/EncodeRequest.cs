@@ -4,10 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Contracts.Response
+namespace API.Contracts.Request
 {
-    public class Envelop<T>
-    {
-        public T Data { get; set; }
-    }
+    public record EncodeRequest(int UserId, string Username, string Message);
 }
