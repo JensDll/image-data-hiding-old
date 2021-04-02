@@ -14,6 +14,7 @@ BEGIN
   SELECT
     Id,
     Username,
+    RegistrationDate,
     DeletionDate
   FROM dbo.Users
   ORDER BY Id

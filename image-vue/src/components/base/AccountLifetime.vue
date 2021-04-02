@@ -13,15 +13,13 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const router = useRouter();
+    const user = store.state.userModule.user;
 
-    const state = useCountdown(
-      store.state.userModule.user.deletionDate,
-      async () => {
-        router.push({ name: 'home' });
-        store.commit('userModule/RESET_STATE');
-        store.commit('accountModule/RESET_STATE');
-      }
-    );
+    const state = useCountdown(user.timeUntilDeletion, async () => {
+      router.push({ name: 'home' });
+      store.commit('userModule/RESET_STATE');
+      store.commit('authModule/RESET_STATE');
+    });
 
     return { ...state };
   }

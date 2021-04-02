@@ -9,8 +9,8 @@ const getDistance = (time: number | Date): number => {
   }
 };
 
-export function useCountdown(time: number | Date, done?: () => void) {
-  const distance = ref(getDistance(time));
+export function useCountdown(time: number, done?: () => void) {
+  const distance = ref(time);
 
   const ms = {
     DAY: 86400000, // 1000 * 60 * 60 * 24

@@ -12,21 +12,15 @@ const INIT_STATE: UserModuleState = {
   user: {
     id: 0,
     username: '',
-    deletionDate: new Date()
+    timeUntilDeletion: 0
   }
 };
 
 type UserModule = Module<UserModuleState, RootState>;
 
-export type User = {
-  id: number;
-  username: string;
-  deletionDate: Date;
-};
-
 export type UserModuleState = {
   loggedIn: boolean;
-  user: User;
+  user: ApiUser;
 };
 
 export const userModule: UserModule = {
@@ -40,11 +34,7 @@ export const userModule: UserModule = {
   mutations: {
     [types.SET_USER](state, user: ApiUser) {
       state.loggedIn = true;
-      state.user = {
-        id: user.id,
-        username: user.username,
-        deletionDate: new Date(user.deletionDate)
-      };
+      state.user = { ...user };
     },
     [types.RESET_STATE](state) {
       Object.assign(state, INIT_STATE);

@@ -47,7 +47,6 @@ export function createFetch<T = void>(
       const parsingOptions = (options: RequestOptions) => {
         const makeRequest = async (options: RequestOptions, extra: T) => {
           try {
-            // console.log(`FETCH ${options.uri}`);
             await baseOptions.beforeEach?.(options, extra);
             state.loading = true;
             state.isValid = true;
@@ -80,7 +79,7 @@ export function createFetch<T = void>(
           extra: T
         ) => {
           await makeRequest(options, extra);
-
+          console.log(state.response);
           if (
             isValidResponse(state.response) &&
             state.isValid &&

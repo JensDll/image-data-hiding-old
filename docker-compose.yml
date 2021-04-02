@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  vue:
+    build: 
+      context: ./image-vue
+    ports: 
+      - target: 80
+        published: 3000
+
+  api:
+    build:
+      context: ./image-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings:ImageDb: "Server=host.docker.internal,${DB_PORT};Database=image_db;User Id=sa;Password=${SA_PW}"
+    ports:
+      - target: 80
+        published: 8000
+
+  db:
+    build:
+      context: ./image-db
+      args:
+        SA_PASSWORD: "${SA_PW}"
+    ports:
+      - target: 1433
+        published: ${DB_PORT}

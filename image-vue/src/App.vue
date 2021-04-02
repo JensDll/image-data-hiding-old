@@ -2,8 +2,15 @@
   <MainPage />
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import MainPage from './views/MainPage.vue';
+import { defineComponent } from '@vue/runtime-core';
+
+export default defineComponent({
+  components: {
+    MainPage
+  }
+});
 </script>
 
 <style>

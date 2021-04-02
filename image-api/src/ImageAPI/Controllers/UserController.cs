@@ -1,8 +1,7 @@
-using Application.Common;
-using Application.Common.Interfaces;
-using Application.Common.Models;
-using Domain.Contracts.Request;
-using Domain.Contracts.Response;
+using Application.API.Interfaces;
+using Contracts.API;
+using Contracts.API.Request;
+using Contracts.API.Response;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -20,12 +19,12 @@ namespace ImageAPI.Controllers
         }
 
         [HttpGet(ApiRoutes.UserRoutes.GetAll)]
-        [ProducesResponseType(typeof(PagedResponse<DbUser>), 200)]
-        public async Task<IActionResult> GetAll([FromQuery] PaginationRequest request)
+        [ProducesResponseType(typeof(PagedResponseDto<UserDto>), 200)]
+        public async Task<IActionResult> GetAll([FromQuery] PaginationRequestDto request)
         {
             var (users, total) = await UserRepository.GetAllAsync(request);
 
-            return Ok(new PagedResponse<DbUser>
+            return Ok(new PagedResponseDto<UserDto>
             {
                 Data = users,
                 Total = total
@@ -33,15 +32,15 @@ namespace ImageAPI.Controllers
         }
 
         [HttpGet(ApiRoutes.UserRoutes.GetById)]
-        [ProducesResponseType(typeof(DbUser), 200)]
-        [ProducesResponseType(typeof(ErrorResponse), 400)]
+        [ProducesResponseType(typeof(UserDto), 200)]
+        [ProducesResponseType(typeof(ErrorResponseDto), 400)]
         public async Task<IActionResult> GetById(int id)
         {
             var user = await UserRepository.GetBydIdAsync(id);
 
             if (user == null)
             {
-                return BadRequest(new ErrorResponse
+                return BadRequest(new ErrorResponseDto
                 {
                     ErrorMessages = new[] { $"User with '{id}' does not exist." }
                 });
@@ -51,15 +50,15 @@ namespace ImageAPI.Controllers
         }
 
         [HttpGet(ApiRoutes.UserRoutes.GetByUsername)]
-        [ProducesResponseType(typeof(DbUser), 200)]
-        [ProducesResponseType(typeof(ErrorResponse), 400)]
+        [ProducesResponseType(typeof(UserDto), 200)]
+        [ProducesResponseType(typeof(ErrorResponseDto), 400)]
         public async Task<IActionResult> GetByName(string username)
         {
             var user = await UserRepository.GetByNameAsync(username);
 
             if (user == null)
             {
-                return BadRequest(new ErrorResponse
+                return BadRequest(new ErrorResponseDto
                 {
                     ErrorMessages = new[] { $"User with name '{username}' does not exist." }
                 });
@@ -69,12 +68,12 @@ namespace ImageAPI.Controllers
         }
 
         [HttpGet(ApiRoutes.UserRoutes.IsUserNameTake)]
-        [ProducesResponseType(typeof(Envelop<bool>), 200)]
+        [ProducesResponseType(typeof(EnvelopDto<bool>), 200)]
         public async Task<IActionResult> IsUserNameTake(string username)
         {
             bool value = await UserRepository.IsUsernameTakenAsync(username);
 
-            return Ok(new Envelop<bool> { Data = value });
+            return Ok(new EnvelopDto<bool> { Data = value });
         }
     }
 }
