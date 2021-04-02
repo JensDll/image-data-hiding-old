@@ -4,24 +4,19 @@ services:
     build: 
       context: ./image-vue
     ports: 
-      - target: 80
-        published: 3000
-
+      - 8000:80
   api:
     build:
       context: ./image-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings:ImageDb: "Server=host.docker.internal,${DB_PORT};Database=image_db;User Id=sa;Password=${SA_PW}"
+      ConnectionStrings:ImageDb: "Server=host.docker.internal,${DB_PORT};Database=image_db;User Id=sa;Password=${SA_PASSWORD}"
     ports:
-      - target: 80
-        published: 8000
-
+      - 8001:80
   db:
     build:
       context: ./image-db
       args:
-        SA_PASSWORD: "${SA_PW}"
+        SA_PASSWORD: "${SA_PASSWORD}"
     ports:
-      - target: 1433
-        published: ${DB_PORT}
+      - ${DB_PORT}:1433
