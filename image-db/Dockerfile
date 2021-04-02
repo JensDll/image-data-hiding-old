@@ -8,6 +8,9 @@ COPY ./build.sql ./
 
 USER mssql
 
+# 1. Launch SQL Server and wait for startup
+# 2. Create empty database from script
+# 3. Terminate SQL Server
 RUN ( /opt/mssql/bin/sqlservr & ) | grep -q "Service Broker manager has started" \
     && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P $SA_PASSWORD -i /tmp/build.sql \
     && pkill sqlservr
