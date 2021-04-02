@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Authorization.Interfaces
 {
-    public interface IAuthRepository
+    public interface IApplicationUserRepository
     {
         Task<ApplicationUser> GetByIdAsync(int id);
 

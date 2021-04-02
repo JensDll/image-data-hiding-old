@@ -18,19 +18,19 @@ namespace Infrastructure.Authorization.Services
         private JwtSettings JwtSettings { get; }
         private TokenValidationParameters TokenValidationParameters { get; }
         private IRefreshTokenRepository RefreshTokenRepository { get; }
-        private IAuthRepository IdentityRepository { get; }
+        private IApplicationUserRepository ApplicationUserRepository { get; }
 
         public AccountService(UserManager<ApplicationUser> userManager,
             JwtSettings jwtSettings,
             TokenValidationParameters tokenValidationParameters,
             IRefreshTokenRepository refreshTokenRepository,
-            IAuthRepository identityRepository)
+            IApplicationUserRepository applicationUserRepository)
         {
             UserManager = userManager;
             JwtSettings = jwtSettings;
             TokenValidationParameters = tokenValidationParameters;
             RefreshTokenRepository = refreshTokenRepository;
-            IdentityRepository = identityRepository;
+            ApplicationUserRepository = applicationUserRepository;
         }
 
         public async Task<AuthResult> RegisterAsync(string username, string password)
@@ -56,7 +56,7 @@ namespace Infrastructure.Authorization.Services
             _ = Task.Factory.StartNew(async () =>
             {
                 TimeSpan delay = newUser.DeletionDate - newUser.RegistrationDate;
-                await Task.Delay(delay).ContinueWith(async _ => await IdentityRepository.DeleteAsync(newUser.Id));
+                await Task.Delay(delay).ContinueWith(async _ => await ApplicationUserRepository.DeleteAsync(newUser.Id));
             });
 
             return await GenerateAuthResultForUserAsync(newUser);

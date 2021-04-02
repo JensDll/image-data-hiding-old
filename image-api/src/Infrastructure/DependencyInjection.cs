@@ -15,6 +15,8 @@ using Infrastructure.Authorization.Repositories;
 using Infrastructure.API.Repositories;
 using Application.Data;
 using Application.API.Interfaces;
+using Microsoft.AspNetCore.Hosting;
+using System.Data.SqlClient;
 
 namespace Infrastructure
 {
@@ -33,8 +35,8 @@ namespace Infrastructure
             services.AddSingleton<IDecodeService, DecodeService>();
 
             // Data Access
-            services.AddSingleton<IConnectionFactory>(new ConnectionFactory(configuration.GetConnectionString("IMAGE_DB")));
-            services.AddSingleton<IAuthRepository, AuthRepository>();
+            services.AddSingleton<IConnectionFactory>(new ConnectionFactory(configuration.GetConnectionString("ImageDb")));
+            services.AddSingleton<IApplicationUserRepository, ApplicationUserRepository>();
             services.AddSingleton<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddSingleton<IUserRepository, UserRepository>();
 

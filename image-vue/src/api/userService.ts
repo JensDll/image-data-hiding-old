@@ -5,7 +5,7 @@ import { Envelop, PagedResponse } from './common';
 export type ApiUser = {
   id: number;
   username: string;
-  deletionDate: string;
+  timeUntilDeletion: number;
 };
 
 export const userService = (fetchOptions?: FetchOptions) => ({

@@ -1,5 +1,4 @@
 using Application.API.Interfaces;
-using Application.API.Models;
 using Contracts.API;
 using Contracts.API.Request;
 using Contracts.API.Response;
@@ -20,12 +19,12 @@ namespace ImageAPI.Controllers
         }
 
         [HttpGet(ApiRoutes.UserRoutes.GetAll)]
-        [ProducesResponseType(typeof(PagedResponseDto<DbUser>), 200)]
+        [ProducesResponseType(typeof(PagedResponseDto<UserDto>), 200)]
         public async Task<IActionResult> GetAll([FromQuery] PaginationRequestDto request)
         {
             var (users, total) = await UserRepository.GetAllAsync(request);
 
-            return Ok(new PagedResponseDto<DbUser>
+            return Ok(new PagedResponseDto<UserDto>
             {
                 Data = users,
                 Total = total
@@ -33,7 +32,7 @@ namespace ImageAPI.Controllers
         }
 
         [HttpGet(ApiRoutes.UserRoutes.GetById)]
-        [ProducesResponseType(typeof(DbUser), 200)]
+        [ProducesResponseType(typeof(UserDto), 200)]
         [ProducesResponseType(typeof(ErrorResponseDto), 400)]
         public async Task<IActionResult> GetById(int id)
         {
@@ -51,7 +50,7 @@ namespace ImageAPI.Controllers
         }
 
         [HttpGet(ApiRoutes.UserRoutes.GetByUsername)]
-        [ProducesResponseType(typeof(DbUser), 200)]
+        [ProducesResponseType(typeof(UserDto), 200)]
         [ProducesResponseType(typeof(ErrorResponseDto), 400)]
         public async Task<IActionResult> GetByName(string username)
         {

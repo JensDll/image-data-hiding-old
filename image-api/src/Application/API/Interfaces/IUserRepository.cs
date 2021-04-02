@@ -1,5 +1,5 @@
-﻿using Application.API.Models;
-using Contracts.API.Request;
+﻿using Contracts.API.Request;
+using Contracts.API.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +10,11 @@ namespace Application.API.Interfaces
 {
     public interface IUserRepository
     {
-        Task<(IEnumerable<DbUser> Users, int Total)> GetAllAsync(PaginationRequestDto request);
+        Task<(IEnumerable<UserDto> Users, int Total)> GetAllAsync(PaginationRequestDto request);
 
-        Task<DbUser> GetByNameAsync(string username);
+        Task<UserDto> GetByNameAsync(string username);
 
-        Task<DbUser> GetBydIdAsync(int id);
+        Task<UserDto> GetBydIdAsync(int id);
 
         Task<bool> IsUsernameTakenAsync(string username);
     }

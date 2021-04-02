@@ -12,6 +12,8 @@ namespace Application.API.Models
 
         public string Username { get; set; }
 
+        public DateTime RegistrationDate { get; set; }
+
         public DateTime DeletionDate { get; set; }
     }
 }

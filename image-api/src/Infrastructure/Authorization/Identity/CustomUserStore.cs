@@ -9,18 +9,18 @@ namespace Infrastructure.Authorization.Identity
 {
     public class CustomUserStore : IUserStore<ApplicationUser>, IUserPasswordStore<ApplicationUser>
     {
-        private IAuthRepository IdentityRepository { get; }
+        private readonly IApplicationUserRepository applicationUserRepository;
 
-        public CustomUserStore(IAuthRepository identityRepository)
+        public CustomUserStore(IApplicationUserRepository applicationUserRepository)
         {
-            IdentityRepository = identityRepository;
+            this.applicationUserRepository = applicationUserRepository;
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            int id = await IdentityRepository.CreateAsync(user);
+            int id = await applicationUserRepository.CreateAsync(user);
 
             if (id > 0)
             {
@@ -38,7 +38,7 @@ namespace Infrastructure.Authorization.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            int count = await IdentityRepository.DeleteAsync(user.Id);
+            int count = await applicationUserRepository.DeleteAsync(user.Id);
 
             if (count > 0)
             {
@@ -60,7 +60,7 @@ namespace Infrastructure.Authorization.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await IdentityRepository.GetByNameAsync(normalizedUserName);
+            return await applicationUserRepository.GetByNameAsync(normalizedUserName);
         }
 
         public Task<string> GetNormalizedUserNameAsync(ApplicationUser user, CancellationToken cancellationToken)

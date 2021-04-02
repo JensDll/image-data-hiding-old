@@ -3,7 +3,9 @@ using Application.API.Models;
 using Application.Authorization.Interfaces;
 using Application.Data;
 using Contracts.API.Request;
+using Contracts.API.Response;
 using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -14,14 +16,14 @@ namespace Infrastructure.API.Repositories
 {
     internal class UserRepository : RepositoryBase, IUserRepository
     {
-        private readonly IAuthRepository authRepository;
+        private readonly IApplicationUserRepository applicationUserRepository;
 
-        public UserRepository(IConnectionFactory connectionFactory, IAuthRepository authRepository) : base(connectionFactory)
+        public UserRepository(IConnectionFactory connectionFactory, IApplicationUserRepository applicationUserRepository) : base(connectionFactory)
         {
-            this.authRepository = authRepository;
+            this.applicationUserRepository = applicationUserRepository;
         }
 
-        public async Task<(IEnumerable<DbUser> Users, int Total)> GetAllAsync(PaginationRequestDto request)
+        public async Task<(IEnumerable<UserDto> Users, int Total)> GetAllAsync(PaginationRequestDto request)
         {
             using var connection = ConnectionFactory.NewConnection;
 
@@ -38,43 +40,57 @@ namespace Infrastructure.API.Repositories
 
             if (!result.Any())
             {
-                return (Enumerable.Empty<DbUser>(), total);
+                return (Enumerable.Empty<UserDto>(), total);
             }
 
-            var users = JsonSerializer.Deserialize<IEnumerable<DbUser>>(string.Join("", result));
+            var dbUsers = JsonSerializer.Deserialize<IEnumerable<DbUser>>(string.Join("", result));
+            var users = dbUsers.Select(dbUser => new UserDto
+            {
+                Id = dbUser.Id,
+                Username = dbUser.Username,
+                TimeUntilDeletion = GetTimeUntilDeletion(dbUser.DeletionDate)
+            });
 
             return (users, total);
         }
 
         public async Task<bool> IsUsernameTakenAsync(string username)
         {
-            var user = await authRepository.GetByNameAsync(username);
+            var applicationUser = await applicationUserRepository.GetByNameAsync(username);
 
-            return user is not null;
+            return applicationUser != null;
         }
 
-        public async Task<DbUser> GetBydIdAsync(int id)
+        public async Task<UserDto> GetBydIdAsync(int id)
         {
-            var user = await authRepository.GetByIdAsync(id);
+            var applicationUser = await applicationUserRepository.GetByIdAsync(id);
 
-            return user is null ? null : new DbUser
+            return applicationUser == null ? null : new UserDto
             {
-                Id = user.Id,
-                Username = user.UserName,
-                DeletionDate = user.DeletionDate
+                Id = applicationUser.Id,
+                Username = applicationUser.UserName,
+                TimeUntilDeletion = GetTimeUntilDeletion(applicationUser.DeletionDate)
             };
         }
 
-        public async Task<DbUser> GetByNameAsync(string username)
+        public async Task<UserDto> GetByNameAsync(string username)
         {
-            var user = await authRepository.GetByNameAsync(username);
+            var applicationUser = await applicationUserRepository.GetByNameAsync(username);
 
-            return user is null ? null : new DbUser
+            return applicationUser == null ? null : new UserDto
             {
-                Id = user.Id,
-                Username = user.UserName,
-                DeletionDate = user.DeletionDate
+                Id = applicationUser.Id,
+                Username = applicationUser.UserName,
+                TimeUntilDeletion = GetTimeUntilDeletion(applicationUser.DeletionDate)
             };
         }
+
+        private long GetTimeUntilDeletion(DateTime deletionDate)
+        {
+            long ms = (long)(deletionDate - DateTime.Now).TotalMilliseconds;
+
+            return ms > 0 ? ms : 0;
+        }
+
     }
 }

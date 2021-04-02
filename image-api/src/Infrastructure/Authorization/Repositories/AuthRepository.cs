@@ -13,11 +13,11 @@ using Application.Data;
 
 namespace Infrastructure.Authorization.Repositories
 {
-    public class AuthRepository : IAuthRepository
+    public class ApplicationUserRepository : IApplicationUserRepository
     {
         private readonly IConnectionFactory connectionFactory;
 
-        public AuthRepository(IConnectionFactory connectionFactory)
+        public ApplicationUserRepository(IConnectionFactory connectionFactory)
         {
             this.connectionFactory = connectionFactory;
         }

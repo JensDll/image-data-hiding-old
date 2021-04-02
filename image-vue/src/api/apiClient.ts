@@ -5,7 +5,10 @@ import { isCurrentTokenExpired } from './common';
 import { MUTATIONS } from '../store/modules/authModule';
 import { authService } from './authService';
 
-const BASE_URI = 'https://localhost:5001';
+const BASE_URI =
+  process.env.NODE_ENV === 'development'
+    ? 'https://localhost:5001'
+    : 'http://localhost:8000';
 
 export const apiClient = createFetch(BASE_URI);
 
