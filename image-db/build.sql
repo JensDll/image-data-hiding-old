@@ -1,6 +1,6 @@
 USE [master]
 GO
-/****** Object:  Database [image_db]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  Database [image_db]    Script Date: 03/04/2021 15:58:27 ******/
 CREATE DATABASE [image_db]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -76,13 +76,11 @@ ALTER DATABASE [image_db] SET DELAYED_DURABILITY = DISABLED
 GO
 ALTER DATABASE [image_db] SET ACCELERATED_DATABASE_RECOVERY = OFF  
 GO
-EXEC sys.sp_db_vardecimal_storage_format N'image_db', N'ON'
-GO
 ALTER DATABASE [image_db] SET QUERY_STORE = OFF
 GO
 USE [image_db]
 GO
-/****** Object:  Table [dbo].[RefreshTokens]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  Table [dbo].[RefreshTokens]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -102,7 +100,7 @@ CREATE TABLE [dbo].[RefreshTokens](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Users]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  Table [dbo].[Users]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -125,7 +123,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[RefreshTokens] CHECK CONSTRAINT [FK_RefreshTokens-UserId_Users]
 GO
-/****** Object:  StoredProcedure [dbo].[spRefreshTokens_DeleteForUser]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spRefreshTokens_DeleteForUser]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -140,7 +138,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRefreshTokens_GetByToken]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spRefreshTokens_GetByToken]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -157,7 +155,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRefreshTokens_Insert]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spRefreshTokens_Insert]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -193,7 +191,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRefreshTokens_SetUsed]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spRefreshTokens_SetUsed]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -209,7 +207,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spUsers_Delete]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spUsers_Delete]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -222,7 +220,7 @@ BEGIN
   WHERE Id = @id;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spUsers_GetAll]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spUsers_GetAll]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -251,7 +249,7 @@ BEGIN
   FROM dbo.Users;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spUsers_GetById]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spUsers_GetById]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -268,7 +266,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spUsers_GetByName]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spUsers_GetByName]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -283,7 +281,7 @@ BEGIN
   FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
   END
 GO
-/****** Object:  StoredProcedure [dbo].[spUsers_Insert]    Script Date: 02/04/2021 00:55:34 ******/
+/****** Object:  StoredProcedure [dbo].[spUsers_Insert]    Script Date: 03/04/2021 15:58:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
