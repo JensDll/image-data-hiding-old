@@ -1,3 +1,4 @@
+# https://hub.docker.com/_/microsoft-azure-sql-edge
 FROM mcr.microsoft.com/azure-sql-edge:1.0.3 as build
 
 ARG SA_PASSWORD
