@@ -1,5 +1,5 @@
 # Image Data Hiding
-Anwendung als Teil der Studienarbeit zur Kryptografie.
+Anwendung als Teil der Studienarbeit zur Kryptografie und Steganografie.
 
 ## Wie kann man es ausprobieren?
 Projekt klonen und wenn Docker installiert ist, im Stammverzeichnis den folgenden Befehl ausführen:
