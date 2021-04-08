@@ -30,7 +30,6 @@ namespace Infrastructure
 
             // Services
             services.AddScoped<IAccountService, AccountService>();
-            services.AddSingleton<IEnumerableService, EnumerableService>();
             services.AddSingleton<IEncodeService, EncodeService>();
             services.AddSingleton<IDecodeService, DecodeService>();
 

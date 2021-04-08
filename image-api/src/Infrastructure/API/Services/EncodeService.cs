@@ -14,8 +14,6 @@ namespace Infrastructure.API.Services
 {
     internal class EncodeService : IEncodeService
     {
-        private readonly IEnumerableService enumerableService;
-
         private readonly Dictionary<BitPosition, byte> lookup = new()
         {
             { BitPosition.One, 0 },
@@ -28,30 +26,20 @@ namespace Infrastructure.API.Services
             { BitPosition.Eighth, 7 },
         };
 
-        public EncodeService(IEnumerableService enumerableService)
-        {
-            this.enumerableService = enumerableService;
-        }
-
         public void EnocodeMessage(Bitmap image, byte[] message)
         {
             EncodeMessageLength(image, message.Length);
-
-            var pixelSequence = enumerableService.EvenDistribution(image);
-            var bitSequence = enumerableService.Bitwise(message).GetEnumerator();
-
-            EncodeMessageImpl(image, pixelSequence, bitSequence);
+            EncodeMessageImpl(image, message.Bitwise().GetEnumerator());
         }
 
         private void EncodeMessageImpl(Bitmap image,
-            IEnumerable<(Point, Pixel)> pixelSequence,
             IEnumerator<byte> bitSequence,
             BitPosition bitPosition = BitPosition.One)
         {
             byte shift = lookup[bitPosition];
             byte mask = (byte)~bitPosition;
 
-            foreach (var (point, pixel) in pixelSequence)
+            foreach (var (point, pixel) in image.RandomDistribution())
             {
                 int r = pixel.R;
                 int g = pixel.G;
@@ -92,7 +80,7 @@ namespace Infrastructure.API.Services
                 throw new MessageToLongException();
             }
 
-            EncodeMessageImpl(image, pixelSequence, bitSequence, (BitPosition)((byte)bitPosition << 1));
+            EncodeMessageImpl(image, bitSequence, (BitPosition)((byte)bitPosition << 1));
         }
 
         private static void EncodeMessageLength(Bitmap image, int length)

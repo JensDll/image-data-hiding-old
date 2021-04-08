@@ -13,18 +13,10 @@ namespace Infrastructure.API.Services
 {
     internal class DecodeService : IDecodeService
     {
-        private IEnumerableService EnumerableService { get; }
-
-        public DecodeService(IEnumerableService enumerableService)
-        {
-            EnumerableService = enumerableService;
-        }
-
         public byte[] DecodeMessage(Bitmap image)
         {
             int length = DecodeMessageLength(image);
-            var pixelSequence = EnumerableService.EvenDistribution(image);
-            var query = DecodeMessageImpl(image, pixelSequence, length * 8);
+            var query = DecodeMessageImpl(image, length * 8);
 
             var result = new byte[length];
 
@@ -49,11 +41,9 @@ namespace Infrastructure.API.Services
             return result;
         }
 
-        private static IEnumerable<byte> DecodeMessageImpl(Bitmap image,
-            IEnumerable<(Point, Pixel)> pixelSequence,
-            int messageLength)
+        private static IEnumerable<byte> DecodeMessageImpl(Bitmap image, int messageLength)
         {
-            var pixelEnumerator = pixelSequence.GetEnumerator();
+            var pixelEnumerator = image.RandomDistribution().GetEnumerator();
 
             byte mask = (byte)BitPosition.One;
             int shiftRight = 0;
@@ -73,7 +63,7 @@ namespace Infrastructure.API.Services
                 }
                 else
                 {
-                    pixelEnumerator = pixelSequence.GetEnumerator();
+                    pixelEnumerator = image.RandomDistribution().GetEnumerator();
                     mask <<= 1;
                     shiftRight++;
                 }
