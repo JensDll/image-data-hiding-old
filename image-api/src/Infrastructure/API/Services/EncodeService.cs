@@ -28,18 +28,18 @@ namespace Infrastructure.API.Services
 
         public void EnocodeMessage(Bitmap image, byte[] message)
         {
-            EncodeMessageLength(image, message.Length);
-            EncodeMessageImpl(image, message.Bitwise().GetEnumerator());
+            ushort seed = (ushort)new Random().Next();
+            image.EncodeMessageLength(message.Length);
+            image.EncodeSeed(seed);
+            EncodeMessageImpl(image, message.Bitwise().GetEnumerator(), seed);
         }
 
-        private void EncodeMessageImpl(Bitmap image,
-            IEnumerator<byte> bitSequence,
-            BitPosition bitPosition = BitPosition.One)
+        private void EncodeMessageImpl(Bitmap image, IEnumerator<byte> bitSequence, ushort seed, BitPosition bitPosition = BitPosition.One)
         {
             byte shift = lookup[bitPosition];
             byte mask = (byte)~bitPosition;
 
-            foreach (var (point, pixel) in image.RandomDistribution())
+            foreach (var (point, pixel) in image.RandomDistribution(seed))
             {
                 int r = pixel.R;
                 int g = pixel.G;
@@ -80,32 +80,7 @@ namespace Infrastructure.API.Services
                 throw new MessageToLongException();
             }
 
-            EncodeMessageImpl(image, bitSequence, (BitPosition)((byte)bitPosition << 1));
-        }
-
-        private static void EncodeMessageLength(Bitmap image, int length)
-        {
-            var (r1, g1, b1) = image.GetPixelValue(0, 0); // 1.5 byte
-            var (r2, g2, b2) = image.GetPixelValue(1, 0);  // 1 byte
-            var (r3, g3, b3) = image.GetPixelValue(image.Width - 1, image.Height - 1); // 1.5 byte
-
-            byte mask1 = 0b_0000_1111;
-            byte mask2 = 0b_1111_0000;
-
-            r1 = r1 & mask2 | length & mask1;
-            g1 = g1 & mask2 | (length >> 4) & mask1;
-            b1 = b1 & mask2 | (length >> 8) & mask1;
-
-            r2 = r2 & mask2 | (length >> 12) & mask1;
-            g2 = g2 & mask2 | (length >> 16) & mask1;
-
-            r3 = r3 & mask2 | (length >> 20) & mask1;
-            g3 = g3 & mask2 | (length >> 24) & mask1;
-            b3 = b3 & mask2 | (length >> 28) & mask1;
-
-            image.SetPixel(0, 0, Color.FromArgb(r1, g1, b1));
-            image.SetPixel(1, 0, Color.FromArgb(r2, g2, b2));
-            image.SetPixel(image.Width - 1, image.Height - 1, Color.FromArgb(r3, g3, b3));
+            EncodeMessageImpl(image, bitSequence, seed, (BitPosition)((byte)bitPosition << 1));
         }
     }
 }

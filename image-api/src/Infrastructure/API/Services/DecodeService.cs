@@ -15,7 +15,7 @@ namespace Infrastructure.API.Services
     {
         public byte[] DecodeMessage(Bitmap image)
         {
-            int length = DecodeMessageLength(image);
+            int length = image.DecodeMessageLength();
             var query = DecodeMessageImpl(image, length * 8);
 
             var result = new byte[length];
@@ -43,7 +43,8 @@ namespace Infrastructure.API.Services
 
         private static IEnumerable<byte> DecodeMessageImpl(Bitmap image, int messageLength)
         {
-            var pixelEnumerator = image.RandomDistribution().GetEnumerator();
+            ushort seed = image.DecodeSeed();
+            var pixelEnumerator = image.RandomDistribution(seed).GetEnumerator();
 
             byte mask = (byte)BitPosition.One;
             int shiftRight = 0;
@@ -63,35 +64,13 @@ namespace Infrastructure.API.Services
                 }
                 else
                 {
-                    pixelEnumerator = image.RandomDistribution().GetEnumerator();
+                    pixelEnumerator = image.RandomDistribution(seed).GetEnumerator();
                     mask <<= 1;
                     shiftRight++;
                 }
             }
 
             pixelEnumerator.Dispose();
-        }
-
-        private static int DecodeMessageLength(Bitmap image)
-        {
-            var (r1, g1, b1) = image.GetPixelValue(0, 0); // 1.5 byte
-            var (r2, g2, _) = image.GetPixelValue(1, 0); // 1 byte 
-            var (r3, g3, b3) = image.GetPixelValue(image.Width - 1, image.Height - 1); // 1.5 byte
-
-            byte mask = 0b_0000_1111;
-
-            int a = r1 & mask;
-            int b = (g1 & mask) << 4;
-            int c = (b1 & mask) << 8;
-
-            int d = (r2 & mask) << 12;
-            int e = (g2 & mask) << 16;
-
-            int f = (r3 & mask) << 20;
-            int g = (g3 & mask) << 24;
-            int h = (b3 & mask) << 28;
-
-            return a | b | c | d | e | f | g | h;
         }
     }
 }
