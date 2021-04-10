@@ -25,10 +25,11 @@ namespace Infrastructure.API.Services
             { BitPosition.Seven, 6 },
             { BitPosition.Eighth, 7 },
         };
+        private readonly Random rand = new ();
 
         public void EnocodeMessage(Bitmap image, byte[] message)
         {
-            ushort seed = (ushort)new Random().Next();
+            ushort seed = (ushort)rand.Next();
             image.EncodeMessageLength(message.Length);
             image.EncodeSeed(seed);
             EncodeMessageImpl(image, message.Bitwise().GetEnumerator(), seed);
