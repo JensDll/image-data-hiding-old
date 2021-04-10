@@ -1,10 +1,7 @@
-# https://hub.docker.com/_/microsoft-azure-sql-edge
-FROM mcr.microsoft.com/azure-sql-edge:1.0.3 as build
+FROM mcr.microsoft.com/mssql/server:2019-latest as build
 
 ARG SA_PASSWORD
-
-ENV ACCEPT_EULA=1
-ENV MSSQL_PID=Premium
+ENV ACCEPT_EULA=Y
 
 WORKDIR /tmp
 COPY ./build.sql ./
@@ -19,6 +16,6 @@ RUN ( /opt/mssql/bin/sqlservr & ) | grep -q "Service Broker manager has started"
     && pkill sqlservr
 
 # final image
-FROM mcr.microsoft.com/azure-sql-edge:1.0.3
+FROM mcr.microsoft.com/mssql/server:2019-latest
 
 COPY --from=build /var/opt/mssql/data /var/opt/mssql/data
