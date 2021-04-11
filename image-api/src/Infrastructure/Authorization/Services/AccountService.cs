@@ -39,7 +39,7 @@ namespace Infrastructure.Authorization.Services
             {
                 UserName = username,
                 RegistrationDate = DateTime.Now,
-                DeletionDate = DateTime.Now.AddMinutes(15)
+                DeletionDate = DateTime.Now.AddHours(24)
             };
 
             var identityResult = await UserManager.CreateAsync(newUser, password);
