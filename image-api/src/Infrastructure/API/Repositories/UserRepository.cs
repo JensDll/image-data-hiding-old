@@ -91,6 +91,5 @@ namespace Infrastructure.API.Repositories
 
             return ms > 0 ? ms : 0;
         }
-
     }
 }
