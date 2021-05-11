@@ -25,7 +25,7 @@ namespace Infrastructure.API.Services
             { BitPosition.Seven, 6 },
             { BitPosition.Eighth, 7 },
         };
-        private readonly Random rand = new ();
+        private readonly Random rand = new();
 
         public void EnocodeMessage(Bitmap image, byte[] message)
         {
